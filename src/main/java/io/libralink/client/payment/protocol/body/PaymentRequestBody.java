@@ -8,7 +8,9 @@ public class PaymentRequestBody implements BodyContent {
     private BigDecimal amount;
     private String type;
     private String payer;
+    private String payerParty;
     private String payee;
+    private String payeeParty;
     private long createdAt;
     private String note;
 
@@ -38,12 +40,28 @@ public class PaymentRequestBody implements BodyContent {
         this.payer = payer;
     }
 
+    public String getPayerParty() {
+        return payerParty;
+    }
+
+    void setPayerParty(String payerParty) {
+        this.payerParty = payerParty;
+    }
+
     public String getPayee() {
         return payee;
     }
 
     void setPayee(String payee) {
         this.payee = payee;
+    }
+
+    public String getPayeeParty() {
+        return payeeParty;
+    }
+
+    void setPayeeParty(String payeeParty) {
+        this.payeeParty = payeeParty;
     }
 
     public long getCreatedAt() {
@@ -75,7 +93,9 @@ public class PaymentRequestBody implements BodyContent {
         private BigDecimal amount;
         private String type;
         private String payer;
+        private String payerParty;
         private String payee;
+        private String payeeParty;
         private long createdAt;
         private String note;
 
@@ -96,8 +116,18 @@ public class PaymentRequestBody implements BodyContent {
             return this;
         }
 
+        public Builder addPayeeParty(String payeeParty) {
+            this.payeeParty = payeeParty;
+            return this;
+        }
+
         public Builder addPayer(String payer) {
             this.payer = payer;
+            return this;
+        }
+
+        public Builder addPayerParty(String payerParty) {
+            this.payerParty = payerParty;
             return this;
         }
 
@@ -117,7 +147,9 @@ public class PaymentRequestBody implements BodyContent {
             paymentRequestBody.setNote(note);
             paymentRequestBody.setType(type);
             paymentRequestBody.setPayee(payee);
+            paymentRequestBody.setPayeeParty(payeeParty);
             paymentRequestBody.setPayer(payer);
+            paymentRequestBody.setPayerParty(payerParty);
             paymentRequestBody.setCreatedAt(createdAt);
             return paymentRequestBody;
         }

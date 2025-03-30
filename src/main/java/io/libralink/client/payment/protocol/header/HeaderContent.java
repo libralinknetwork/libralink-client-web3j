@@ -9,8 +9,7 @@ import com.fasterxml.jackson.annotation.JsonTypeInfo;
 @JsonTypeInfo(use = JsonTypeInfo.Id.NAME, property = "objectType")
 @JsonSubTypes({
         @JsonSubTypes.Type(value = PartyHeaderContent.class, name = "PartyHeaderContent"),
-        @JsonSubTypes.Type(value = PayeeHeaderContent.class, name = "PayeeHeaderContent"),
-        @JsonSubTypes.Type(value = PayerHeaderContent.class, name = "PayerHeaderContent") }
+        @JsonSubTypes.Type(value = EmptyHeaderContent.class, name = "EmptyHeaderContent")  }
 )
 public interface HeaderContent {
 }

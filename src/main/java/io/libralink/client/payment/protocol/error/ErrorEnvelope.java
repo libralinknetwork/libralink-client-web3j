@@ -2,16 +2,16 @@ package io.libralink.client.payment.protocol.error;
 
 public class ErrorEnvelope {
 
-    private ErrorMessage content;
+    private ErrorMessage error;
 
     private ErrorEnvelope() {}
 
-    public ErrorMessage getContent() {
-        return content;
+    public ErrorMessage getError() {
+        return error;
     }
 
-    void setContent(ErrorMessage content) {
-        this.content = content;
+    void setError(ErrorMessage error) {
+        this.error = error;
     }
 
     public static Builder builder() {
@@ -20,18 +20,18 @@ public class ErrorEnvelope {
 
     public final static class Builder {
 
-        private ErrorMessage content;
+        private ErrorMessage error;
 
         private Builder() {}
 
-        public Builder addContent(ErrorMessage content) {
-            this.content = content;
+        public Builder addError(ErrorMessage error) {
+            this.error = error;
             return this;
         }
 
         public ErrorEnvelope build() {
             ErrorEnvelope errorEnvelope = new ErrorEnvelope();
-            errorEnvelope.setContent(content);
+            errorEnvelope.setError(error);
             return errorEnvelope;
         }
     }

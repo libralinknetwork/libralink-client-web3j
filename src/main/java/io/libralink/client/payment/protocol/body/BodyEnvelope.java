@@ -2,16 +2,16 @@ package io.libralink.client.payment.protocol.body;
 
 public class BodyEnvelope {
 
-    private BodyContent content;
+    private BodyContent body;
 
     private BodyEnvelope() {}
 
-    public BodyContent getContent() {
-        return content;
+    public BodyContent getBody() {
+        return body;
     }
 
-    void setContent(BodyContent content) {
-        this.content = content;
+    void setBody(BodyContent body) {
+        this.body = body;
     }
 
     public static Builder builder() {
@@ -20,18 +20,18 @@ public class BodyEnvelope {
 
     public final static class Builder {
 
-        private BodyContent content;
+        private BodyContent body;
 
         private Builder() {}
 
-        public Builder addContent(BodyContent content) {
-            this.content = content;
+        public Builder addBody(BodyContent body) {
+            this.body = body;
             return this;
         }
 
         public BodyEnvelope build() {
             BodyEnvelope bodyEnvelope = new BodyEnvelope();
-            bodyEnvelope.setContent(content);
+            bodyEnvelope.setBody(body);
             return bodyEnvelope;
         }
     }

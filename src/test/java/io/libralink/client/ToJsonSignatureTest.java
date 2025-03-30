@@ -35,7 +35,7 @@ public class ToJsonSignatureTest {
             .build();
 
         BodyEnvelope bodyEnvelope = BodyEnvelope.builder()
-            .addContent(bodyContent).build();
+            .addBody(bodyContent).build();
 
         FeeStructure feeStructure = FeeStructure.builder()
             .addFlatFee(BigDecimal.ONE)
@@ -73,7 +73,7 @@ public class ToJsonSignatureTest {
             .build();
 
         ErrorEnvelope errorEnvelope = ErrorEnvelope.builder()
-            .addContent(errorMessage).build();
+            .addError(errorMessage).build();
 
         Envelope envelope = Envelope.builder()
             .addBody(bodyEnvelope)

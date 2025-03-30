@@ -4,8 +4,7 @@ import io.libralink.client.payment.protocol.Envelope;
 import io.libralink.client.payment.protocol.body.BodyEnvelope;
 import io.libralink.client.payment.protocol.header.HeaderWithSignature;
 import io.libralink.client.payment.protocol.header.PartyHeaderContent;
-import io.libralink.client.payment.protocol.header.PayeeHeaderContent;
-import io.libralink.client.payment.protocol.header.PayerHeaderContent;
+import io.libralink.client.payment.protocol.header.EmptyHeaderContent;
 import io.libralink.client.payment.util.EncryptionUtils;
 import io.libralink.client.payment.util.JsonUtils;
 import org.web3j.crypto.Credentials;
@@ -23,7 +22,7 @@ public final class SignatureHelper {
         boolean isValid = true;
 
         BodyEnvelope body = envelope.getBody();
-        List<HeaderWithSignature> headers = envelope.getHeader().getContent();
+        List<HeaderWithSignature> headers = envelope.getHeader().getHeaders();
 
         for (HeaderWithSignature header: headers) {
             String bodyAddress = header.getBodySig().getAddress();
@@ -66,22 +65,11 @@ public final class SignatureHelper {
     /**
      * PayeeHeaderContent is empty, nothing to sign
      */
-    public static String sign(PayeeHeaderContent content, Credentials credentials) throws Exception {
+    public static String sign(EmptyHeaderContent content, Credentials credentials) throws Exception {
         return null;
     }
 
-    public static boolean verify(PayeeHeaderContent content, String address, String signature) throws Exception {
-        return signature == null;
-    }
-
-    /**
-     * PayerHeaderContent is empty, nothing to sign
-     */
-    public static String sign(PayerHeaderContent content, Credentials credentials) throws Exception {
-        return null;
-    }
-
-    public static boolean verify(PayerHeaderContent content, String address, String signature) throws Exception {
+    public static boolean verify(EmptyHeaderContent content, String address, String signature) throws Exception {
         return signature == null;
     }
 }

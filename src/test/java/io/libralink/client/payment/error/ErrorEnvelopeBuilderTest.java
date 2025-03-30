@@ -21,10 +21,10 @@ public class ErrorEnvelopeBuilderTest {
         assertEquals("Error Code 5", errorMessage.getMessage());
 
         ErrorEnvelope errorEnvelope = ErrorEnvelope.builder()
-            .addContent(errorMessage)
+            .addError(errorMessage)
             .build();
 
         assertNotNull(errorEnvelope);
-        assertSame(errorMessage, errorEnvelope.getContent());
+        assertSame(errorMessage, errorEnvelope.getError());
     }
 }

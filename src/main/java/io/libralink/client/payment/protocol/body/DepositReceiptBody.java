@@ -11,10 +11,12 @@ public class DepositReceiptBody implements BodyContent {
     private BigDecimal amount;
     private String type;
     private String payer;
+    private String payerParty;
     private String payee;
+    private String payeeParty;
     private long createdAt;
-    private UUID eCheckEnvelopeId;
-    private List<UUID> paymentRequestEnvelopeIds = new ArrayList<>();
+    private UUID checkId;
+    private List<UUID> requestIds = new ArrayList<>();
 
     private DepositReceiptBody() {}
 
@@ -50,6 +52,22 @@ public class DepositReceiptBody implements BodyContent {
         this.payee = payee;
     }
 
+    public String getPayerParty() {
+        return payerParty;
+    }
+
+    void setPayerParty(String payerParty) {
+        this.payerParty = payerParty;
+    }
+
+    public String getPayeeParty() {
+        return payeeParty;
+    }
+
+    void setPayeeParty(String payeeParty) {
+        this.payeeParty = payeeParty;
+    }
+
     public long getCreatedAt() {
         return createdAt;
     }
@@ -58,20 +76,20 @@ public class DepositReceiptBody implements BodyContent {
         this.createdAt = createdAt;
     }
 
-    public UUID geteCheckEnvelopeId() {
-        return eCheckEnvelopeId;
+    public UUID getCheckId() {
+        return checkId;
     }
 
-    void seteCheckEnvelopeId(UUID eCheckEnvelopeId) {
-        this.eCheckEnvelopeId = eCheckEnvelopeId;
+    void setCheckId(UUID checkId) {
+        this.checkId = checkId;
     }
 
-    public List<UUID> getPaymentRequestEnvelopeIds() {
-        return paymentRequestEnvelopeIds;
+    public List<UUID> getRequestIds() {
+        return requestIds;
     }
 
-    void setPaymentRequestEnvelopeIds(List<UUID> paymentRequestEnvelopeIds) {
-        this.paymentRequestEnvelopeIds = paymentRequestEnvelopeIds;
+    void setRequestIds(List<UUID> requestIds) {
+        this.requestIds = requestIds;
     }
 
     public String getObjectType() {
@@ -87,20 +105,22 @@ public class DepositReceiptBody implements BodyContent {
         private BigDecimal amount;
         private String type;
         private String payer;
+        private String payerParty;
         private String payee;
+        private String payeeParty;
         private long createdAt;
-        private UUID eCheckEnvelopeId;
-        private List<UUID> paymentRequestEnvelopeIds;
+        private UUID checkId;
+        private List<UUID> requestIds;
 
         private Builder() {}
 
-        public Builder addPaymentRequestEnvelopeIds(List<UUID> paymentRequestEnvelopeIds) {
-            this.paymentRequestEnvelopeIds = paymentRequestEnvelopeIds;
+        public Builder addPaymentRequestEnvelopeIds(List<UUID> requestIds) {
+            this.requestIds = requestIds;
             return this;
         }
 
-        public Builder addECheckEnvelopeId(UUID eCheckEnvelopeId) {
-            this.eCheckEnvelopeId = eCheckEnvelopeId;
+        public Builder addECheckEnvelopeId(UUID checkId) {
+            this.checkId = checkId;
             return this;
         }
 
@@ -114,8 +134,18 @@ public class DepositReceiptBody implements BodyContent {
             return this;
         }
 
+        public Builder addPayeeParty(String payeeParty) {
+            this.payeeParty = payeeParty;
+            return this;
+        }
+
         public Builder addPayer(String payer) {
             this.payer = payer;
+            return this;
+        }
+
+        public Builder addPayerParty(String payerParty) {
+            this.payerParty = payerParty;
             return this;
         }
 
@@ -134,10 +164,12 @@ public class DepositReceiptBody implements BodyContent {
             depositReceiptBody.setAmount(amount);
             depositReceiptBody.setCreatedAt(createdAt);
             depositReceiptBody.setPayee(payee);
+            depositReceiptBody.setPayeeParty(payeeParty);
             depositReceiptBody.setPayer(payer);
+            depositReceiptBody.setPayerParty(payerParty);
             depositReceiptBody.setType(type);
-            depositReceiptBody.seteCheckEnvelopeId(eCheckEnvelopeId);
-            depositReceiptBody.setPaymentRequestEnvelopeIds(paymentRequestEnvelopeIds);
+            depositReceiptBody.setCheckId(checkId);
+            depositReceiptBody.setRequestIds(requestIds);
             return depositReceiptBody;
         }
     }

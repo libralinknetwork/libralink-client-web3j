@@ -5,16 +5,16 @@ import java.util.List;
 
 public class HeaderEnvelope {
 
-    private List<HeaderWithSignature> content;
+    private List<HeaderWithSignature> headers;
 
     private HeaderEnvelope() {}
 
-    public List<HeaderWithSignature> getContent() {
-        return content;
+    public List<HeaderWithSignature> getHeaders() {
+        return headers;
     }
 
-    void setContent(List<HeaderWithSignature> content) {
-        this.content = content;
+    void setHeaders(List<HeaderWithSignature> headers) {
+        this.headers = headers;
     }
 
     public static Builder builder() {
@@ -22,32 +22,32 @@ public class HeaderEnvelope {
     }
 
     public static Builder builder(HeaderEnvelope headerEnvelope) {
-        return new Builder(headerEnvelope.getContent());
+        return new Builder(headerEnvelope.getHeaders());
     }
 
     public final static class Builder {
 
-        private List<HeaderWithSignature> content = new ArrayList<>();
+        private List<HeaderWithSignature> headers = new ArrayList<>();
 
         private Builder() {}
 
-        private Builder(List<HeaderWithSignature> content) {
-            this.content = content;
+        private Builder(List<HeaderWithSignature> headers) {
+            this.headers = headers;
         }
 
-        public Builder addContent(List<HeaderWithSignature> content) {
-            this.content = content;
+        public Builder addContent(List<HeaderWithSignature> headers) {
+            this.headers = headers;
             return this;
         }
 
         public Builder addContent(HeaderWithSignature item) {
-            this.content.add(item);
+            this.headers.add(item);
             return this;
         }
 
         public HeaderEnvelope build() {
             HeaderEnvelope headerEnvelope = new HeaderEnvelope();
-            headerEnvelope.setContent(content);
+            headerEnvelope.setHeaders(headers);
             return headerEnvelope;
         }
     }

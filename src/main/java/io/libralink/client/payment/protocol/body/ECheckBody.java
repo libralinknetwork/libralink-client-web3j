@@ -8,7 +8,9 @@ public class ECheckBody implements BodyContent {
     private BigDecimal amount;
     private String type;
     private String payer;
+    private String payerParty;
     private String payee;
+    private String payeeParty;
     private long createdAt;
     private long expiresAt;
     private String note;
@@ -45,6 +47,22 @@ public class ECheckBody implements BodyContent {
 
     void setPayee(String payee) {
         this.payee = payee;
+    }
+
+    public String getPayerParty() {
+        return payerParty;
+    }
+
+    void setPayerParty(String payerParty) {
+        this.payerParty = payerParty;
+    }
+
+    public String getPayeeParty() {
+        return payeeParty;
+    }
+
+    void setPayeeParty(String payeeParty) {
+        this.payeeParty = payeeParty;
     }
 
     public long getCreatedAt() {

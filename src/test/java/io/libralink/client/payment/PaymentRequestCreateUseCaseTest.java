@@ -49,7 +49,7 @@ public class PaymentRequestCreateUseCaseTest {
 
         HeaderWithSignature payeeHeader = HeaderWithSignature.builder()
             .addBodySig(payeeSignature)
-            .addContent(PayeeHeaderContent.builder().build())
+            .addContent(EmptyHeaderContent.builder().build())
             .build();
 
         paymentRequest = Envelope.builder(paymentRequest)
@@ -69,7 +69,7 @@ public class PaymentRequestCreateUseCaseTest {
 
         HeaderWithSignature payerHeader = HeaderWithSignature.builder()
                 .addBodySig(payerSignature)
-                .addContent(PayerHeaderContent.builder().build())
+                .addContent(EmptyHeaderContent.builder().build())
                 .build();
 
         paymentRequest = Envelope.builder(paymentRequest)
@@ -123,24 +123,24 @@ public class PaymentRequestCreateUseCaseTest {
                 .addAmount(amount)
                 .addCreatedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli())
                 .addPayee(payee)
+                .addPayeeParty(TP_ADDR)
                 .addPayer(payer)
+                .addPayerParty(TP_ADDR)
                 .addType("USDT")
                 .addNote("")
                 .build();
 
         BodyEnvelope bodyEnvelope = BodyEnvelope.builder()
-                .addContent(bodyContent).build();
+                .addBody(bodyContent).build();
 
         HeaderEnvelope headerEnvelope = HeaderEnvelope.builder()
                 .addContent(new ArrayList<>()).build();
 
-        Envelope envelope = Envelope.builder()
+        return Envelope.builder()
                 .addBody(bodyEnvelope)
                 .addHeader(headerEnvelope)
                 .addEnvelopeId(UUID.randomUUID())
                 .build();
-
-        return envelope;
     }
 
     public void test_create_key_pair() throws Exception {

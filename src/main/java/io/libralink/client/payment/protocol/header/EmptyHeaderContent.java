@@ -1,10 +1,10 @@
 package io.libralink.client.payment.protocol.header;
 
-public class PayerHeaderContent implements HeaderContent {
+public class EmptyHeaderContent implements HeaderContent {
 
-    private final String objectType = PayerHeaderContent.class.getSimpleName();
+    private final String objectType = EmptyHeaderContent.class.getSimpleName();
 
-    private PayerHeaderContent() {}
+    private EmptyHeaderContent() {}
 
     public String getObjectType() {
         return objectType;
@@ -18,8 +18,8 @@ public class PayerHeaderContent implements HeaderContent {
 
         private Builder() {}
 
-        public PayerHeaderContent build() {
-            return new PayerHeaderContent();
+        public EmptyHeaderContent build() {
+            return new EmptyHeaderContent();
         }
     }
 }
