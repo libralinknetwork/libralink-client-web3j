@@ -1,11 +1,11 @@
 package io.libralink.client.payment.protocol.header;
 
-public class PartyHeaderContent implements HeaderContent {
+public class ProcessorHeaderContent implements HeaderContent {
 
-    private final String objectType = PartyHeaderContent.class.getSimpleName();
+    private final String objectType = ProcessorHeaderContent.class.getSimpleName();
     private FeeStructure fee;
 
-    private PartyHeaderContent() {}
+    private ProcessorHeaderContent() {}
 
     public FeeStructure getFee() {
         return fee;
@@ -34,8 +34,8 @@ public class PartyHeaderContent implements HeaderContent {
             return this;
         }
 
-        public PartyHeaderContent build() {
-            PartyHeaderContent partyHeaderContent = new PartyHeaderContent();
+        public ProcessorHeaderContent build() {
+            ProcessorHeaderContent partyHeaderContent = new ProcessorHeaderContent();
             partyHeaderContent.setFee(fee);
             return partyHeaderContent;
         }

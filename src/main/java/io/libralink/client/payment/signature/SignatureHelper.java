@@ -3,7 +3,7 @@ package io.libralink.client.payment.signature;
 import io.libralink.client.payment.protocol.Envelope;
 import io.libralink.client.payment.protocol.body.BodyEnvelope;
 import io.libralink.client.payment.protocol.header.HeaderWithSignature;
-import io.libralink.client.payment.protocol.header.PartyHeaderContent;
+import io.libralink.client.payment.protocol.header.ProcessorHeaderContent;
 import io.libralink.client.payment.protocol.header.EmptyHeaderContent;
 import io.libralink.client.payment.util.EncryptionUtils;
 import io.libralink.client.payment.util.JsonUtils;
@@ -31,11 +31,11 @@ public final class SignatureHelper {
             isValid = isValid && verify(body, bodyAddress, bodySignature);
 
             /* Party Header signature needs to be verified */
-            if (PartyHeaderContent.class == header.getContent().getClass()) {
+            if (ProcessorHeaderContent.class == header.getHeader().getClass()) {
                 String headerAddress = header.getHeaderSig().getAddress();
                 String headerSignature = header.getHeaderSig().getSig();
 
-                isValid = isValid && verify((PartyHeaderContent) header.getContent(), headerAddress, headerSignature);
+                isValid = isValid && verify((ProcessorHeaderContent) header.getHeader(), headerAddress, headerSignature);
             }
         }
 
@@ -52,12 +52,12 @@ public final class SignatureHelper {
         return recover(json, signature, address);
     }
 
-    public static String sign(PartyHeaderContent content, Credentials credentials) throws Exception {
+    public static String sign(ProcessorHeaderContent content, Credentials credentials) throws Exception {
         String json = JsonUtils.toJson(content);
         return EncryptionUtils.sign(json, credentials);
     }
 
-    public static boolean verify(PartyHeaderContent content, String address, String signature) throws Exception {
+    public static boolean verify(ProcessorHeaderContent content, String address, String signature) throws Exception {
         String json = JsonUtils.toJson(content);
         return recover(json, signature, address);
     }

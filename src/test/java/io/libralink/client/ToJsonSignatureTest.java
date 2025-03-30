@@ -3,7 +3,7 @@ package io.libralink.client;
 import io.libralink.client.payment.protocol.Envelope;
 import io.libralink.client.payment.protocol.body.BodyContent;
 import io.libralink.client.payment.protocol.body.BodyEnvelope;
-import io.libralink.client.payment.protocol.body.DepositReceiptBody;
+import io.libralink.client.payment.protocol.body.PaymentRequestBody;
 import io.libralink.client.payment.protocol.error.ErrorEnvelope;
 import io.libralink.client.payment.protocol.error.ErrorMessage;
 import io.libralink.client.payment.protocol.header.*;
@@ -13,7 +13,6 @@ import org.junit.jupiter.api.Test;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.time.ZoneOffset;
-import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
@@ -24,13 +23,11 @@ public class ToJsonSignatureTest {
     @Test
     public void toJsonTest() throws Exception {
 
-        BodyContent bodyContent = DepositReceiptBody.builder()
+        BodyContent bodyContent = PaymentRequestBody.builder()
             .addAmount(BigDecimal.ONE)
             .addCreatedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli())
             .addPayee("0x1234")
             .addPayer("0x1235")
-            .addECheckEnvelopeId(UUID.randomUUID())
-            .addPaymentRequestEnvelopeIds(new ArrayList<>())
             .addType("USDT")
             .build();
 
@@ -38,33 +35,32 @@ public class ToJsonSignatureTest {
             .addBody(bodyContent).build();
 
         FeeStructure feeStructure = FeeStructure.builder()
-            .addFlatFee(BigDecimal.ONE)
-            .addPercentFee(BigDecimal.TEN)
+            .addFee(BigDecimal.ONE)
             .build();
 
-        PartyHeaderContent headerContent = PartyHeaderContent.builder()
+        ProcessorHeaderContent headerContent = ProcessorHeaderContent.builder()
             .addFee(feeStructure).build();
 
         Signature headerSig = Signature.builder()
             .addAddress("address1")
             .addSig("sig1")
-            .addNonce("nonce1")
+            .addSalt("nonce1")
             .build();
 
         Signature bodySig = Signature.builder()
             .addAddress("address2")
             .addSig("sig2")
-            .addNonce("nonce2")
+            .addSalt("nonce2")
             .build();
 
         HeaderWithSignature headerWithSignature = HeaderWithSignature.builder()
             .addHeaderSig(headerSig)
             .addBodySig(bodySig)
-            .addContent(headerContent)
+            .addHeader(headerContent)
             .build();
 
         HeaderEnvelope headerEnvelope = HeaderEnvelope.builder()
-            .addContent(List.of(headerWithSignature)).build();
+            .addHeaders(List.of(headerWithSignature)).build();
 
 
         ErrorMessage errorMessage = ErrorMessage.builder()

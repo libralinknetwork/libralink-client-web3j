@@ -3,7 +3,7 @@ package io.libralink.client.payment.protocol.header;
 public class Signature {
 
     private String address;
-    private String nonce;
+    private String salt;
     private String sig;
 
     private Signature() {}
@@ -16,12 +16,12 @@ public class Signature {
         this.address = address;
     }
 
-    public String getNonce() {
-        return nonce;
+    public String getSalt() {
+        return salt;
     }
 
-    void setNonce(String nonce) {
-        this.nonce = nonce;
+    void setSalt(String salt) {
+        this.salt = salt;
     }
 
     public String getSig() {
@@ -39,7 +39,7 @@ public class Signature {
     public final static class Builder {
 
         private String address;
-        private String nonce;
+        private String salt;
         private String sig;
 
         private Builder() {}
@@ -49,8 +49,8 @@ public class Signature {
             return this;
         }
 
-        public Builder addNonce(String nonce) {
-            this.nonce = nonce;
+        public Builder addSalt(String salt) {
+            this.salt = salt;
             return this;
         }
 
@@ -63,7 +63,7 @@ public class Signature {
             Signature signature = new Signature();
             signature.setAddress(address);
             signature.setSig(sig);
-            signature.setNonce(nonce);
+            signature.setSalt(salt);
             return signature;
         }
     }

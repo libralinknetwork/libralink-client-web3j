@@ -43,18 +43,18 @@ public class PaymentRequestCreateUseCaseTest {
         String payeeSigValue = SignatureHelper.sign(body, Credentials.create(PAYEE_PK));
         Signature payeeSignature = Signature.builder()
             .addAddress(PAYEE_ADDR)
-            .addNonce(UUID.randomUUID().toString())
+            .addSalt(UUID.randomUUID().toString())
             .addSig(payeeSigValue)
             .build();
 
         HeaderWithSignature payeeHeader = HeaderWithSignature.builder()
             .addBodySig(payeeSignature)
-            .addContent(EmptyHeaderContent.builder().build())
+            .addHeader(EmptyHeaderContent.builder().build())
             .build();
 
         paymentRequest = Envelope.builder(paymentRequest)
             .addHeader(HeaderEnvelope.builder(paymentRequest.getHeader())
-                .addContent(payeeHeader).build()).build();
+                .addHeader(payeeHeader).build()).build();
 
         assertTrue(SignatureHelper.verify(paymentRequest));
 
@@ -63,29 +63,28 @@ public class PaymentRequestCreateUseCaseTest {
         String payerSigValue = SignatureHelper.sign(body, Credentials.create(PAYER_PK));
         Signature payerSignature = Signature.builder()
                 .addAddress(PAYER_ADDR)
-                .addNonce(UUID.randomUUID().toString())
+                .addSalt(UUID.randomUUID().toString())
                 .addSig(payerSigValue)
                 .build();
 
         HeaderWithSignature payerHeader = HeaderWithSignature.builder()
                 .addBodySig(payerSignature)
-                .addContent(EmptyHeaderContent.builder().build())
+                .addHeader(EmptyHeaderContent.builder().build())
                 .build();
 
         paymentRequest = Envelope.builder(paymentRequest)
                 .addHeader(HeaderEnvelope.builder(paymentRequest.getHeader())
-                        .addContent(payerHeader).build()).build();
+                        .addHeader(payerHeader).build()).build();
 
         assertTrue(SignatureHelper.verify(paymentRequest));
 
         /* 3. Payment is not guaranteed at this stage, hence Payer sends request to Trusted Party to sign & declare the fee size */
 
         FeeStructure feeStructure = FeeStructure.builder()
-                .addFlatFee(BigDecimal.ONE)
-                .addPercentFee(BigDecimal.TEN)
+                .addFee(BigDecimal.TEN)
                 .build();
 
-        PartyHeaderContent partyHeaderContent = PartyHeaderContent.builder()
+        ProcessorHeaderContent partyHeaderContent = ProcessorHeaderContent.builder()
                 .addFee(feeStructure)
                 .build();
 
@@ -94,25 +93,25 @@ public class PaymentRequestCreateUseCaseTest {
 
         Signature partyBodySignature = Signature.builder()
                 .addAddress(TP_ADDR)
-                .addNonce(UUID.randomUUID().toString())
+                .addSalt(UUID.randomUUID().toString())
                 .addSig(partyBodySigValue)
                 .build();
 
         Signature partyHeaderSignature = Signature.builder()
                 .addAddress(TP_ADDR)
-                .addNonce(UUID.randomUUID().toString())
+                .addSalt(UUID.randomUUID().toString())
                 .addSig(partyHeaderSigValue)
                 .build();
 
         HeaderWithSignature partyHeader = HeaderWithSignature.builder()
                 .addBodySig(partyBodySignature)
                 .addHeaderSig(partyHeaderSignature)
-                .addContent(partyHeaderContent)
+                .addHeader(partyHeaderContent)
                 .build();
 
         paymentRequest = Envelope.builder(paymentRequest)
                 .addHeader(HeaderEnvelope.builder(paymentRequest.getHeader())
-                        .addContent(partyHeader).build()).build();
+                        .addHeader(partyHeader).build()).build();
 
         assertTrue(SignatureHelper.verify(paymentRequest));
     }
@@ -123,9 +122,9 @@ public class PaymentRequestCreateUseCaseTest {
                 .addAmount(amount)
                 .addCreatedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli())
                 .addPayee(payee)
-                .addPayeeParty(TP_ADDR)
+                .addPayeeProcessor(TP_ADDR)
                 .addPayer(payer)
-                .addPayerParty(TP_ADDR)
+                .addPayerProcessor(TP_ADDR)
                 .addType("USDT")
                 .addNote("")
                 .build();
@@ -134,7 +133,7 @@ public class PaymentRequestCreateUseCaseTest {
                 .addBody(bodyContent).build();
 
         HeaderEnvelope headerEnvelope = HeaderEnvelope.builder()
-                .addContent(new ArrayList<>()).build();
+                .addHeaders(new ArrayList<>()).build();
 
         return Envelope.builder()
                 .addBody(bodyEnvelope)

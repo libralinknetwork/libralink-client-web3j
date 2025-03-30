@@ -35,12 +35,12 @@ public class HeaderEnvelope {
             this.headers = headers;
         }
 
-        public Builder addContent(List<HeaderWithSignature> headers) {
+        public Builder addHeaders(List<HeaderWithSignature> headers) {
             this.headers = headers;
             return this;
         }
 
-        public Builder addContent(HeaderWithSignature item) {
+        public Builder addHeader(HeaderWithSignature item) {
             this.headers.add(item);
             return this;
         }

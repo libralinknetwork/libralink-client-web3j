@@ -2,18 +2,18 @@ package io.libralink.client.payment.protocol.header;
 
 public class HeaderWithSignature {
 
-    private HeaderContent content;
+    private HeaderContent header;
     private Signature bodySig;
     private Signature headerSig;
 
     private HeaderWithSignature() {}
 
-    public HeaderContent getContent() {
-        return content;
+    public HeaderContent getHeader() {
+        return header;
     }
 
-    void setContent(HeaderContent content) {
-        this.content = content;
+    void setHeader(HeaderContent header) {
+        this.header = header;
     }
 
     public Signature getBodySig() {
@@ -38,7 +38,7 @@ public class HeaderWithSignature {
 
     public final static class Builder {
 
-        private HeaderContent content;
+        private HeaderContent header;
         private Signature bodySig;
         private Signature headerSig;
 
@@ -54,14 +54,14 @@ public class HeaderWithSignature {
             return this;
         }
 
-        public Builder addContent(HeaderContent content) {
-            this.content = content;
+        public Builder addHeader(HeaderContent header) {
+            this.header = header;
             return this;
         }
 
         public HeaderWithSignature build() {
             HeaderWithSignature headerWithSignature = new HeaderWithSignature();
-            headerWithSignature.setContent(content);
+            headerWithSignature.setHeader(header);
             headerWithSignature.setBodySig(bodySig);
             headerWithSignature.setHeaderSig(headerSig);
             return headerWithSignature;

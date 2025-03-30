@@ -8,9 +8,9 @@ public class PaymentRequestBody implements BodyContent {
     private BigDecimal amount;
     private String type;
     private String payer;
-    private String payerParty;
+    private String payerProcessor;
     private String payee;
-    private String payeeParty;
+    private String payeeProcessor;
     private long createdAt;
     private String note;
 
@@ -40,14 +40,6 @@ public class PaymentRequestBody implements BodyContent {
         this.payer = payer;
     }
 
-    public String getPayerParty() {
-        return payerParty;
-    }
-
-    void setPayerParty(String payerParty) {
-        this.payerParty = payerParty;
-    }
-
     public String getPayee() {
         return payee;
     }
@@ -56,12 +48,20 @@ public class PaymentRequestBody implements BodyContent {
         this.payee = payee;
     }
 
-    public String getPayeeParty() {
-        return payeeParty;
+    public String getPayerProcessor() {
+        return payerProcessor;
     }
 
-    void setPayeeParty(String payeeParty) {
-        this.payeeParty = payeeParty;
+    void setPayerProcessor(String payerProcessor) {
+        this.payerProcessor = payerProcessor;
+    }
+
+    public String getPayeeProcessor() {
+        return payeeProcessor;
+    }
+
+    void setPayeeProcessor(String payeeProcessor) {
+        this.payeeProcessor = payeeProcessor;
     }
 
     public long getCreatedAt() {
@@ -93,9 +93,9 @@ public class PaymentRequestBody implements BodyContent {
         private BigDecimal amount;
         private String type;
         private String payer;
-        private String payerParty;
+        private String payerProcessor;
         private String payee;
-        private String payeeParty;
+        private String payeeProcessor;
         private long createdAt;
         private String note;
 
@@ -116,8 +116,8 @@ public class PaymentRequestBody implements BodyContent {
             return this;
         }
 
-        public Builder addPayeeParty(String payeeParty) {
-            this.payeeParty = payeeParty;
+        public Builder addPayeeProcessor(String payeeProcessor) {
+            this.payeeProcessor = payeeProcessor;
             return this;
         }
 
@@ -126,8 +126,8 @@ public class PaymentRequestBody implements BodyContent {
             return this;
         }
 
-        public Builder addPayerParty(String payerParty) {
-            this.payerParty = payerParty;
+        public Builder addPayerProcessor(String payerProcessor) {
+            this.payerProcessor = payerProcessor;
             return this;
         }
 
@@ -147,9 +147,9 @@ public class PaymentRequestBody implements BodyContent {
             paymentRequestBody.setNote(note);
             paymentRequestBody.setType(type);
             paymentRequestBody.setPayee(payee);
-            paymentRequestBody.setPayeeParty(payeeParty);
+            paymentRequestBody.setPayeeProcessor(payeeProcessor);
             paymentRequestBody.setPayer(payer);
-            paymentRequestBody.setPayerParty(payerParty);
+            paymentRequestBody.setPayerProcessor(payerProcessor);
             paymentRequestBody.setCreatedAt(createdAt);
             return paymentRequestBody;
         }
