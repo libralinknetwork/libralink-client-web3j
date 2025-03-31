@@ -6,6 +6,7 @@ import org.junit.jupiter.api.Test;
 import org.web3j.crypto.Credentials;
 
 import java.math.BigDecimal;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,6 +19,7 @@ public class SignatureHelperTest {
             .build();
     final ProcessorHeaderContent content = ProcessorHeaderContent.builder()
             .addFee(feeStructure)
+            .addIntermediary(UUID.randomUUID().toString())
             .build();
 
     @Test

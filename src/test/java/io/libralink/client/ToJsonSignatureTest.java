@@ -39,7 +39,7 @@ public class ToJsonSignatureTest {
             .build();
 
         ProcessorHeaderContent headerContent = ProcessorHeaderContent.builder()
-            .addFee(feeStructure).build();
+            .addFee(feeStructure).addIntermediary(UUID.randomUUID().toString()).build();
 
         Signature headerSig = Signature.builder()
             .addAddress("address1")

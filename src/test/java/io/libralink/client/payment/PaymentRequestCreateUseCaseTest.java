@@ -33,6 +33,10 @@ public class PaymentRequestCreateUseCaseTest {
     private String TP_ADDR = "0x127cc4d943dff0a4bd6b024a96554a84e6247440";
     private String TP_PK = "1c9f40ff758f70b5c59c9df78738fdd122c4f5d6324e61448a3f516b7df00b22";
 
+    /* Intermediary Credentials */
+    private String INTER_ADDR = "0x6ab62b06d9b20e7cbc163dc0bd823d1c6e053314";
+    private String INTER_PK = "d550ba83c69c081ff689fc19bef6aebf4b8d6f39d59bfede59ed223d1f934d90";
+
     @Test
     public void test_create_payment_request() throws Exception {
 
@@ -86,6 +90,7 @@ public class PaymentRequestCreateUseCaseTest {
 
         ProcessorHeaderContent partyHeaderContent = ProcessorHeaderContent.builder()
                 .addFee(feeStructure)
+                .addIntermediary(INTER_ADDR)
                 .build();
 
         String partyBodySigValue = SignatureHelper.sign(body, Credentials.create(TP_PK));
