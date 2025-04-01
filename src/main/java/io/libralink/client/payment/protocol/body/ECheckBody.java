@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 
 public class ECheckBody implements BodyContent {
 
-    private final String objectType = ECheckBody.class.getSimpleName();
     private BigDecimal amount;
     private String type;
     private String payer;
@@ -87,10 +86,6 @@ public class ECheckBody implements BodyContent {
 
     void setNote(String note) {
         this.note = note;
-    }
-
-    public String getObjectType() {
-        return objectType;
     }
 
     public static Builder builder() {

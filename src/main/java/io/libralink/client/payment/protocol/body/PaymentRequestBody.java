@@ -4,7 +4,6 @@ import java.math.BigDecimal;
 
 public class PaymentRequestBody implements BodyContent {
 
-    private final String objectType = PaymentRequestBody.class.getSimpleName();
     private BigDecimal amount;
     private String type;
     private String payer;
@@ -78,10 +77,6 @@ public class PaymentRequestBody implements BodyContent {
 
     void setNote(String note) {
         this.note = note;
-    }
-
-    public String getObjectType() {
-        return objectType;
     }
 
     public static Builder builder() {

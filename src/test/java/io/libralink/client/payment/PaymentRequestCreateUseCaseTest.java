@@ -12,8 +12,6 @@ import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.Keys;
 
 import java.math.BigDecimal;
-import java.time.LocalDateTime;
-import java.time.ZoneOffset;
 import java.util.ArrayList;
 import java.util.UUID;
 
@@ -22,8 +20,8 @@ import static org.junit.jupiter.api.Assertions.assertTrue;
 public class PaymentRequestCreateUseCaseTest {
 
     /* Payer Credentials */
-    private String PAYER_ADDR = "0x490f5932e1098ce96b0ac6770a722f9ca793aa64";
-    private String PAYER_PK = "ad333a0a437df9c7388cc5ae092fe978fbc1a646d73196bf68320e25b7af67c";
+    private String PAYER_ADDR = "0xf39902b133fbdcf926c1f48665c98d1b028d905a";
+    private String PAYER_PK = "7af8df13f6aebcbd9edd369bb5f67bf7523517685491fea776bb547910ff5673";
 
     /* Payee Credentials */
     private String PAYEE_ADDR = "0x8f33dceeedfcf7185aa480ee16db9b9bb745756e";
@@ -47,7 +45,7 @@ public class PaymentRequestCreateUseCaseTest {
         String payeeSigValue = SignatureHelper.sign(body, Credentials.create(PAYEE_PK));
         Signature payeeSignature = Signature.builder()
             .addAddress(PAYEE_ADDR)
-            .addSalt(UUID.randomUUID().toString())
+            .addSalt("9f819ddd-f710-4b1d-904d-b119e01acf9f")
             .addSig(payeeSigValue)
             .build();
 
@@ -67,7 +65,7 @@ public class PaymentRequestCreateUseCaseTest {
         String payerSigValue = SignatureHelper.sign(body, Credentials.create(PAYER_PK));
         Signature payerSignature = Signature.builder()
                 .addAddress(PAYER_ADDR)
-                .addSalt(UUID.randomUUID().toString())
+                .addSalt("607cadad-af8c-4579-bbf6-554026e5c4a7")
                 .addSig(payerSigValue)
                 .build();
 
@@ -98,13 +96,13 @@ public class PaymentRequestCreateUseCaseTest {
 
         Signature partyBodySignature = Signature.builder()
                 .addAddress(TP_ADDR)
-                .addSalt(UUID.randomUUID().toString())
+                .addSalt("6b693293-fd61-4de8-9b18-98e4aadadedd")
                 .addSig(partyBodySigValue)
                 .build();
 
         Signature partyHeaderSignature = Signature.builder()
                 .addAddress(TP_ADDR)
-                .addSalt(UUID.randomUUID().toString())
+                .addSalt("7ae2b744-b4eb-4e1a-adc4-59d47ae6d1b1")
                 .addSig(partyHeaderSigValue)
                 .build();
 
@@ -125,7 +123,7 @@ public class PaymentRequestCreateUseCaseTest {
 
         BodyContent bodyContent = PaymentRequestBody.builder()
                 .addAmount(amount)
-                .addCreatedAt(LocalDateTime.now().toInstant(ZoneOffset.UTC).toEpochMilli())
+                .addCreatedAt(1743526954033L)
                 .addPayee(payee)
                 .addPayeeProcessor(TP_ADDR)
                 .addPayer(payer)
@@ -143,7 +141,7 @@ public class PaymentRequestCreateUseCaseTest {
         return Envelope.builder()
                 .addBody(bodyEnvelope)
                 .addHeader(headerEnvelope)
-                .addEnvelopeId(UUID.randomUUID())
+                .addEnvelopeId(UUID.fromString("cdcaa5d4-bb25-4146-8c78-b736559443a1"))
                 .build();
     }
 

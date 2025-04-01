@@ -2,7 +2,6 @@ package io.libralink.client.payment.protocol.header;
 
 public class ProcessorHeaderContent implements HeaderContent {
 
-    private final String objectType = ProcessorHeaderContent.class.getSimpleName();
     private String intermediary;
     private FeeStructure fee;
 
@@ -22,10 +21,6 @@ public class ProcessorHeaderContent implements HeaderContent {
 
     void setIntermediary(String intermediary) {
         this.intermediary = intermediary;
-    }
-
-    public String getObjectType() {
-        return objectType;
     }
 
     public static Builder builder() {

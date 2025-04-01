@@ -16,7 +16,7 @@ public final class EncryptionUtils {
     }
 
     public static String sign(String message, Credentials credentials) {
-        Sign.SignatureData sigData = Sign.signMessage(message.getBytes(), credentials.getEcKeyPair());
+        Sign.SignatureData sigData = Sign.signPrefixedMessage(message.getBytes(), credentials.getEcKeyPair());
         String r = Numeric.toHexString(sigData.getR());
         String s = Numeric.toHexString(sigData.getS()).substring(2);
         String v = Numeric.toHexString(sigData.getV()).substring(2);
@@ -54,7 +54,7 @@ public final class EncryptionUtils {
         // Then, message will be wrapped as follows:
         // 1. message = "\u0019Ethereum Signed Message:\n" + message.length + message
         // 2. message = sha3(message)
-        BigInteger pubKey = Sign.signedMessageToKey(textMessage.getBytes(), signatureData);
+        BigInteger pubKey = Sign.signedPrefixedMessageToKey(textMessage.getBytes(), signatureData);
 
         // Then retrieve the Ethereum address derived from the public key
         String recover = Keys.getAddress(pubKey);
