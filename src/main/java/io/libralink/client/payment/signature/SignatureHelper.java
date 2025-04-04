@@ -1,15 +1,12 @@
 package io.libralink.client.payment.signature;
 
-import io.libralink.client.payment.protocol.Envelope;
-import io.libralink.client.payment.protocol.body.BodyEnvelope;
-import io.libralink.client.payment.protocol.header.HeaderWithSignature;
-import io.libralink.client.payment.protocol.header.ProcessorHeaderContent;
-import io.libralink.client.payment.protocol.header.EmptyHeaderContent;
+import io.libralink.client.payment.protocol.AbstractEntity;
+import io.libralink.client.payment.protocol.envelope.Envelope;
+import io.libralink.client.payment.protocol.envelope.Signature;
+import io.libralink.client.payment.protocol.processing.ProcessingDetails;
 import io.libralink.client.payment.util.EncryptionUtils;
 import io.libralink.client.payment.util.JsonUtils;
 import org.web3j.crypto.Credentials;
-
-import java.util.List;
 
 import static io.libralink.client.payment.util.EncryptionUtils.recover;
 
@@ -17,59 +14,41 @@ public final class SignatureHelper {
 
     private SignatureHelper() {}
 
+    public static Envelope sign(Envelope envelope, Credentials credentials) throws Exception {
+        AbstractEntity content =  envelope.getContent();
+        String json = JsonUtils.toJson(content);
+        String sig = EncryptionUtils.sign(json, credentials);
+
+        Signature signature = Signature.builder()
+            .addPub(credentials.getAddress())
+            .addSig(sig)
+                .build();
+
+        return Envelope.builder(envelope)
+            .addSignature(signature)
+                .build();
+    }
+
     public static boolean verify(Envelope envelope) throws Exception {
+        if (envelope == null || envelope.getContent() == null) {
+            return false;
+        }
 
-        boolean isValid = true;
+        AbstractEntity content =  envelope.getContent();
+        Signature signature = envelope.getSignature();
+        String json = JsonUtils.toJson(content);
 
-        BodyEnvelope body = envelope.getBody();
-        List<HeaderWithSignature> headers = envelope.getHeader().getHeaders();
+        boolean isValid = recover(json, signature.getSig(), signature.getPub());
 
-        for (HeaderWithSignature header: headers) {
-            String bodyAddress = header.getBodySig().getAddress();
-            String bodySignature = header.getBodySig().getSig();
+        if (ProcessingDetails.class.equals(content.getClass())) {
+            ProcessingDetails details = (ProcessingDetails) content;
+            isValid = isValid && verify(details.getEnvelope());
+        }
 
-            isValid = isValid && verify(body, bodyAddress, bodySignature);
-
-            /* Party Header signature needs to be verified */
-            if (ProcessorHeaderContent.class == header.getHeader().getClass()) {
-                String headerAddress = header.getHeaderSig().getAddress();
-                String headerSignature = header.getHeaderSig().getSig();
-
-                isValid = isValid && verify((ProcessorHeaderContent) header.getHeader(), headerAddress, headerSignature);
-            }
+        if (Envelope.class.equals(content.getClass())) {
+            isValid = isValid && verify((Envelope) content);
         }
 
         return isValid;
-    }
-
-    public static String sign(BodyEnvelope envelope, Credentials credentials) throws Exception {
-        String json = JsonUtils.toJson(envelope);
-        return EncryptionUtils.sign(json, credentials);
-    }
-
-    public static boolean verify(BodyEnvelope envelope, String address, String signature) throws Exception {
-        String json = JsonUtils.toJson(envelope);
-        return recover(json, signature, address);
-    }
-
-    public static String sign(ProcessorHeaderContent content, Credentials credentials) throws Exception {
-        String json = JsonUtils.toJson(content);
-        return EncryptionUtils.sign(json, credentials);
-    }
-
-    public static boolean verify(ProcessorHeaderContent content, String address, String signature) throws Exception {
-        String json = JsonUtils.toJson(content);
-        return recover(json, signature, address);
-    }
-
-    /**
-     * PayeeHeaderContent is empty, nothing to sign
-     */
-    public static String sign(EmptyHeaderContent content, Credentials credentials) throws Exception {
-        return null;
-    }
-
-    public static boolean verify(EmptyHeaderContent content, String address, String signature) throws Exception {
-        return signature == null;
     }
 }

@@ -1,30 +1,33 @@
 package io.libralink.client.payment.error;
 
-import io.libralink.client.payment.protocol.error.ErrorEnvelope;
-import io.libralink.client.payment.protocol.error.ErrorMessage;
-import org.junit.jupiter.api.Test;
+import io.libralink.client.payment.protocol.api.error.ErrorResponse;
+import io.libralink.client.payment.protocol.envelope.Envelope;
+import io.libralink.client.payment.protocol.exception.BuilderException;
+import org.junit.Test;
 
-import static org.junit.jupiter.api.Assertions.*;
+import java.util.UUID;
+
+import static org.junit.Assert.assertEquals;
 
 public class ErrorEnvelopeBuilderTest {
 
     @Test
-    public void test_build_error_envelope() {
+    public void test_build_error_envelope() throws BuilderException {
 
-        ErrorMessage errorMessage = ErrorMessage.builder()
-            .addCode(5)
-            .addMessage("Error Code 5")
-            .build();
+        ErrorResponse response = ErrorResponse.builder()
+                .addCode(1)
+                .addMessage("Error 1")
+                .addId(UUID.fromString("ee6c2125-6832-4aa4-ae03-425439cb89f3"))
+                .build();
 
-        assertNotNull(errorMessage);
-        assertEquals(5, errorMessage.getCode());
-        assertEquals("Error Code 5", errorMessage.getMessage());
+        Envelope envelope = Envelope.builder()
+                .addContent(response)
+                .addSignature(null)
+                .addId(UUID.fromString("84606adc-e558-40d4-9b6c-c7c005dae3fa"))
+                .build();
 
-        ErrorEnvelope errorEnvelope = ErrorEnvelope.builder()
-            .addError(errorMessage)
-            .build();
-
-        assertNotNull(errorEnvelope);
-        assertSame(errorMessage, errorEnvelope.getError());
+        assertEquals(1, ((ErrorResponse) envelope.getContent()).getCode());
+        assertEquals("Error 1", ((ErrorResponse) envelope.getContent()).getMessage());
+        assertEquals("ee6c2125-6832-4aa4-ae03-425439cb89f3", envelope.getContent().getId().toString());
     }
 }
