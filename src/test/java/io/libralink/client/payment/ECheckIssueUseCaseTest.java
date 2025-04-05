@@ -2,9 +2,10 @@ package io.libralink.client.payment;
 
 import io.libralink.client.payment.protocol.echeck.ECheck;
 import io.libralink.client.payment.protocol.envelope.Envelope;
+import io.libralink.client.payment.protocol.envelope.EnvelopeContent;
+import io.libralink.client.payment.protocol.envelope.SignatureReason;
 import io.libralink.client.payment.protocol.exception.BuilderException;
 import io.libralink.client.payment.signature.SignatureHelper;
-import io.libralink.client.payment.util.JsonUtils;
 import org.junit.Test;
 import org.web3j.crypto.Credentials;
 import org.web3j.crypto.ECKeyPair;
@@ -35,10 +36,10 @@ public class ECheckIssueUseCaseTest {
 
         /* 1. Payee creates E-Check and signs it */
         Envelope unsignedEnvelope = createECheckEnvelope(PAYER_ADDR, PROCESSOR_ADDR, PAYEE_ADDR, PROCESSOR_ADDR, BigDecimal.valueOf(150));
-        Envelope signedEnvelope = SignatureHelper.sign(unsignedEnvelope, PAYER_CRED);
+        Envelope signedEnvelope = SignatureHelper.sign(unsignedEnvelope, PAYER_CRED, SignatureReason.CONFIRM);
 
-        assertNotNull(signedEnvelope.getSignature());
-        assertEquals("0x8dab44d1340f615f60ee5d604375d06fe1e937e72f32f12165120bf332ed598d4dab4160008477bffcdfd378dce424745d26fa6a9c0b58f89b1a81e71791cf871c", signedEnvelope.getSignature().getSig());
+        assertNotNull(signedEnvelope.getSig());
+        assertEquals("0x2e37346b9a27ff4f4ecdbcbbd4e33e775d62aefa3d1ae80494f91ca2488e89d97820f4eaaac8152605266d0a513961b40f5dab0048945c5ff67239bdca3fc2b81c", signedEnvelope.getSig());
     }
 
     public Envelope createECheckEnvelope(String payer, String payerProcessor, String payee, String payeeProcessor, BigDecimal amount) throws BuilderException {
@@ -58,8 +59,12 @@ public class ECheckIssueUseCaseTest {
                 .addId(UUID.fromString("9eef8f11-2baf-4f7a-8529-38fc20444d88"))
                 .build();
 
+        EnvelopeContent content = EnvelopeContent.builder()
+                .addEntity(eCheck)
+                .build();
+
         Envelope envelope = Envelope.builder()
-                .addContent(eCheck)
+                .addContent(content)
                 .addId(UUID.fromString("e2a3eecd-b99e-4c8f-b3c9-01aacb73a1a4"))
                 .build();
 

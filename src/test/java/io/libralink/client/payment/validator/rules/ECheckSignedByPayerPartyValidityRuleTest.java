@@ -2,6 +2,8 @@ package io.libralink.client.payment.validator.rules;
 
 import io.libralink.client.payment.protocol.echeck.ECheck;
 import io.libralink.client.payment.protocol.envelope.Envelope;
+import io.libralink.client.payment.protocol.envelope.EnvelopeContent;
+import io.libralink.client.payment.protocol.envelope.SignatureReason;
 import io.libralink.client.payment.signature.SignatureHelper;
 import static io.libralink.client.payment.validator.BaseEntityValidator.findFirstFailedRule;
 import org.junit.Test;
@@ -31,12 +33,16 @@ public class ECheckSignedByPayerPartyValidityRuleTest {
     public void test_single_envelope_valid() throws Exception {
 
         ECheck eCheck = eCheckBuilder.build();
-        Envelope envelope = Envelope.builder()
-                .addContent(eCheck)
+
+        EnvelopeContent content = EnvelopeContent.builder()
+                .addEntity(eCheck)
                 .build();
 
-        Envelope signedEnvelope = SignatureHelper.sign(envelope, payerCred);
+        Envelope envelope = Envelope.builder()
+                .addContent(content)
+                .build();
 
+        Envelope signedEnvelope = SignatureHelper.sign(envelope, payerCred, SignatureReason.CONFIRM);
         assertTrue(findFirstFailedRule(signedEnvelope, ECheckSignedByPayerValidityRule.class).isEmpty());
     }
 
@@ -44,13 +50,22 @@ public class ECheckSignedByPayerPartyValidityRuleTest {
     public void test_multiple_envelopes_plus_valid_one() throws Exception {
 
         ECheck eCheck = eCheckBuilder.build();
-        Envelope innerEnvelope = Envelope.builder()
-                .addContent(eCheck)
+
+        EnvelopeContent innerContent = EnvelopeContent.builder()
+                .addEntity(eCheck)
                 .build();
-        Envelope signedEnvelope = SignatureHelper.sign(innerEnvelope, payerCred);
+
+        Envelope innerEnvelope = Envelope.builder()
+                .addContent(innerContent)
+                .build();
+        Envelope signedEnvelope = SignatureHelper.sign(innerEnvelope, payerCred, SignatureReason.CONFIRM);
+
+        EnvelopeContent outerContent = EnvelopeContent.builder()
+                .addEntity(signedEnvelope)
+                .build();
 
         Envelope outerNoSignatureEnvelope = Envelope.builder()
-                .addContent(signedEnvelope)
+                .addContent(outerContent)
                 .build();
 
         assertTrue(findFirstFailedRule(outerNoSignatureEnvelope, ECheckSignedByPayerValidityRule.class).isEmpty());
@@ -60,8 +75,13 @@ public class ECheckSignedByPayerPartyValidityRuleTest {
     public void test_single_envelope_no_signature() throws Exception {
 
         ECheck eCheck = eCheckBuilder.build();
+
+        EnvelopeContent content = EnvelopeContent.builder()
+                .addEntity(eCheck)
+                .build();
+
         Envelope envelope = Envelope.builder()
-                .addContent(eCheck)
+                .addContent(content)
                 .build();
 
         assertFalse(findFirstFailedRule(envelope, ECheckSignedByPayerValidityRule.class).isEmpty());

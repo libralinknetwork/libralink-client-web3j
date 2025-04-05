@@ -15,7 +15,6 @@ import io.libralink.client.payment.protocol.api.processor.GetProcessorsResponse;
 import io.libralink.client.payment.protocol.echeck.DepositApproval;
 import io.libralink.client.payment.protocol.echeck.ECheck;
 import io.libralink.client.payment.protocol.envelope.Envelope;
-import io.libralink.client.payment.protocol.envelope.Signature;
 import io.libralink.client.payment.protocol.exception.BuilderException;
 import io.libralink.client.payment.protocol.processing.ProcessingDetails;
 
@@ -36,8 +35,7 @@ import java.util.UUID;
         @JsonSubTypes.Type(value = DepositApproval.class, name = "DepositApproval"),
         @JsonSubTypes.Type(value = ECheck.class, name = "ECheck"),
         @JsonSubTypes.Type(value = ProcessingDetails.class, name = "ProcessingDetails"),
-        @JsonSubTypes.Type(value = Envelope.class, name = "Envelope"),
-        @JsonSubTypes.Type(value = Signature.class, name = "Signature")
+        @JsonSubTypes.Type(value = Envelope.class, name = "Envelope")
 })
 public abstract class AbstractEntity {
 

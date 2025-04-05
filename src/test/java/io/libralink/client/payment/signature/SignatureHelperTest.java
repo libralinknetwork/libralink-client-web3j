@@ -2,7 +2,8 @@ package io.libralink.client.payment.signature;
 
 import io.libralink.client.payment.protocol.echeck.DepositApproval;
 import io.libralink.client.payment.protocol.envelope.Envelope;
-import io.libralink.client.payment.protocol.envelope.Signature;
+import io.libralink.client.payment.protocol.envelope.EnvelopeContent;
+import io.libralink.client.payment.protocol.envelope.SignatureReason;
 import io.libralink.client.payment.protocol.processing.ProcessingFee;
 import io.libralink.client.payment.protocol.processing.ProcessingDetails;
 import org.junit.Test;
@@ -27,10 +28,18 @@ public class SignatureHelperTest {
             .addId(UUID.fromString("8a29d3c8-4b8e-43dc-8542-9abd6231de7a"))
             .build();
 
-    Envelope signedApprovalEnvelope = SignatureHelper.sign(Envelope.builder()
-            .addContent(approval)
+    EnvelopeContent approvalEnvelopeContent = EnvelopeContent.builder()
+            .addEntity(approval)
+            .build();
+
+    Envelope signedApprovalEnvelope = SignatureHelper.sign(
+        Envelope.builder()
+            .addContent(approvalEnvelopeContent)
             .addId(UUID.randomUUID())
-            .build(), partyCred);
+            .build(),
+        partyCred,
+        SignatureReason.CONFIRM
+    );
 
     final ProcessingFee fee = ProcessingFee.builder()
             .addFeeType("flat")
@@ -49,14 +58,20 @@ public class SignatureHelperTest {
     @Test
     public void test_party_header_content_valid_signature() throws Exception {
 
+        EnvelopeContent envelopeContent = EnvelopeContent.builder()
+                .addEntity(content)
+                .addPub(partyCred.getAddress())
+                .addSigReason(SignatureReason.CONFIRM)
+                .build();
+
         Envelope envelope = Envelope.builder()
-                .addContent(content)
+                .addContent(envelopeContent)
                 .addId(UUID.randomUUID())
                 .build();
 
-        final Envelope signedEnvelope = SignatureHelper.sign(envelope, partyCred);
+        final Envelope signedEnvelope = SignatureHelper.sign(envelope, partyCred, SignatureReason.CONFIRM);
         assertNotNull(signedEnvelope.getId());
-        assertNotNull(signedEnvelope.getSignature());
+        assertNotNull(signedEnvelope.getSig());
 
         boolean isValid = SignatureHelper.verify(signedEnvelope);
         assertTrue(isValid);
@@ -65,14 +80,15 @@ public class SignatureHelperTest {
     @Test
     public void test_party_header_content_invalid_signature() throws Exception {
 
-        Signature fraudulentSig = Signature.builder()
+        EnvelopeContent envelopeContent = EnvelopeContent.builder()
+                .addEntity(content)
                 .addPub("0x127cc4d943dff0a4bd6b024a96554a84e6247440")
-                .addSig("0x051267ae319cd23083c116f43e2d41966354a69e61824a2c922edde4a6df407b74e1db37f82eb5da421f7a19e80bf5bb95fbe875e4d9df186ca73f1c8d7ed65b1c")
+                .addSigReason(SignatureReason.CONFIRM)
                 .build();
 
         Envelope envelope = Envelope.builder()
-                .addContent(content)
-                .addSignature(fraudulentSig)
+                .addContent(envelopeContent)
+                .addSig("0x051267ae319cd23083c116f43e2d41966354a69e61824a2c922edde4a6df407b74e1db37f82eb5da421f7a19e80bf5bb95fbe875e4d9df186ca73f1c8d7ed65b1c")
                 .addId(UUID.randomUUID())
                 .build();
 

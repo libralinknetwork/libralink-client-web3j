@@ -33,7 +33,7 @@ public class ECheckSingleProcessorOnlyValidityRule implements EntityValidationRu
 
         /* If single Processor envelope mentions intermediary */
         List<Envelope> processorEnvelopes = EnvelopeUtils.findAllProcessingDetailsEnvelopes(envelope);
-        Optional<Envelope> nonEmptyIntermediaryEnvelopeOption = processorEnvelopes.stream().filter(env -> ((ProcessingDetails) env.getContent()).getIntermediary() != null)
+        Optional<Envelope> nonEmptyIntermediaryEnvelopeOption = processorEnvelopes.stream().filter(env -> ((ProcessingDetails) env.getContent().getEntity()).getIntermediary() != null)
             .findFirst();
 
         return nonEmptyIntermediaryEnvelopeOption.isEmpty();

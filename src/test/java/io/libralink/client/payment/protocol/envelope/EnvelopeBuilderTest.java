@@ -9,10 +9,7 @@ public class EnvelopeBuilderTest {
     public void throw_error_missing_content() throws BuilderException {
 
         Envelope.builder()
-                .addSignature(Signature.builder()
-                    .addSig("sig")
-                    .addPub("pub")
-                    .build()
-                ).build();
+            .addSig("sig")
+            .build();
     }
 }

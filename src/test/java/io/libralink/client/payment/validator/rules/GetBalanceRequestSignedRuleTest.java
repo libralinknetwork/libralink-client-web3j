@@ -2,6 +2,8 @@ package io.libralink.client.payment.validator.rules;
 
 import io.libralink.client.payment.protocol.api.balance.GetBalanceRequest;
 import io.libralink.client.payment.protocol.envelope.Envelope;
+import io.libralink.client.payment.protocol.envelope.EnvelopeContent;
+import io.libralink.client.payment.protocol.envelope.SignatureReason;
 import io.libralink.client.payment.protocol.exception.BuilderException;
 import io.libralink.client.payment.signature.SignatureHelper;
 import org.junit.Test;
@@ -27,12 +29,20 @@ public class GetBalanceRequestSignedRuleTest {
             .addPub(accountCred.getAddress())
             .build();
 
+    EnvelopeContent noSignatureEnvelopeContent = EnvelopeContent.builder()
+            .addEntity(requestCorrectAddress)
+            .build();
+
     final Envelope noSignatureEnvelope = Envelope.builder()
-            .addContent(requestCorrectAddress)
+            .addContent(noSignatureEnvelopeContent)
+            .build();
+
+    EnvelopeContent noSignatureInvalidAddressEnvelopeContent = EnvelopeContent.builder()
+            .addEntity(requestInvalidAddress)
             .build();
 
     final Envelope noSignatureInvalidAddressEnvelope = Envelope.builder()
-            .addContent(requestInvalidAddress)
+            .addContent(noSignatureInvalidAddressEnvelopeContent)
             .build();
 
     @Test
@@ -43,21 +53,21 @@ public class GetBalanceRequestSignedRuleTest {
     @Test
     public void test_signature_present() throws Exception {
 
-        Envelope signedEnvelope = SignatureHelper.sign(noSignatureEnvelope, accountCred);
+        Envelope signedEnvelope = SignatureHelper.sign(noSignatureEnvelope, accountCred, SignatureReason.CONFIRM);
         assertTrue(findFirstFailedRule(signedEnvelope, GetBalanceRequestSignedRule.class).isEmpty());
     }
 
     @Test
     public void test_invalid_signature() throws Exception {
 
-        Envelope signedEnvelope = SignatureHelper.sign(noSignatureEnvelope, otherCred);
+        Envelope signedEnvelope = SignatureHelper.sign(noSignatureEnvelope, otherCred, SignatureReason.CONFIRM);
         assertFalse(findFirstFailedRule(signedEnvelope, GetBalanceRequestSignedRule.class).isEmpty());
     }
 
     @Test
     public void test_invalid_address() throws Exception {
 
-        Envelope signedEnvelope = SignatureHelper.sign(noSignatureInvalidAddressEnvelope, accountCred);
+        Envelope signedEnvelope = SignatureHelper.sign(noSignatureInvalidAddressEnvelope, accountCred, SignatureReason.CONFIRM);
         assertFalse(findFirstFailedRule(signedEnvelope, GetBalanceRequestSignedRule.class).isEmpty());
     }
 

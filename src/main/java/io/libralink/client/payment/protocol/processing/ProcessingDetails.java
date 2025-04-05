@@ -1,10 +1,10 @@
 package io.libralink.client.payment.protocol.processing;
 
-import io.libralink.client.payment.protocol.AbstractEntity;
+import io.libralink.client.payment.protocol.BaseEntity;
 import io.libralink.client.payment.protocol.envelope.Envelope;
 import io.libralink.client.payment.protocol.exception.BuilderException;
 
-public class ProcessingDetails extends AbstractEntity {
+public class ProcessingDetails extends BaseEntity {
 
     private ProcessingFee fee;
     private String intermediary;
@@ -38,7 +38,7 @@ public class ProcessingDetails extends AbstractEntity {
         return new Builder();
     }
 
-    public final static class Builder extends AbstractEntityBuilder {
+    public final static class Builder extends BaseEntityBuilder {
 
         private ProcessingFee fee;
         private String intermediary;

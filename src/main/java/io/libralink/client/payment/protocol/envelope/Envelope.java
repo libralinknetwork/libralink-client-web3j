@@ -5,23 +5,23 @@ import io.libralink.client.payment.protocol.exception.BuilderException;
 
 public class Envelope extends AbstractEntity {
 
-    private AbstractEntity content;
-    private Signature signature;
+    private EnvelopeContent content;
+    private String sig;
 
-    public AbstractEntity getContent() {
+    public EnvelopeContent getContent() {
         return content;
     }
 
-    void setContent(AbstractEntity content) {
+    void setContent(EnvelopeContent content) {
         this.content = content;
     }
 
-    public Signature getSignature() {
-        return signature;
+    public String getSig() {
+        return sig;
     }
 
-    void setSignature(Signature signature) {
-        this.signature = signature;
+    void setSig(String sig) {
+        this.sig = sig;
     }
 
     public static Builder builder() {
@@ -34,8 +34,8 @@ public class Envelope extends AbstractEntity {
 
     public static class Builder extends AbstractEntityBuilder {
 
-        private AbstractEntity content;
-        private Signature signature;
+        private EnvelopeContent content;
+        private String sig;
 
         private Builder() {
             super();
@@ -43,16 +43,17 @@ public class Envelope extends AbstractEntity {
 
         private Builder(Envelope envelope) {
             this.content = envelope.content;
-            this.signature = envelope.signature;
+            this.sig = envelope.sig;
+            this.addId(envelope.getId());
         }
 
-        public Builder addContent(AbstractEntity content) {
+        public Builder addContent(EnvelopeContent content) {
             this.content = content;
             return this;
         }
 
-        public Builder addSignature(Signature signature) {
-            this.signature = signature;
+        public Builder addSig(String sig) {
+            this.sig = sig;
             return this;
         }
 
@@ -60,7 +61,7 @@ public class Envelope extends AbstractEntity {
             super.build(envelope);
 
             envelope.setContent(content);
-            envelope.setSignature(signature);
+            envelope.setSig(sig);
             return envelope;
         }
 
@@ -72,7 +73,7 @@ public class Envelope extends AbstractEntity {
 
             Envelope envelope = super.build(new Envelope());
             envelope.setContent(content);
-            envelope.setSignature(signature);
+            envelope.setSig(sig);
             return envelope;
         }
     }

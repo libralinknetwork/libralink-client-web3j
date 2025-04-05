@@ -2,7 +2,8 @@ package io.libralink.client.payment.validator.rules;
 
 import io.libralink.client.payment.protocol.echeck.ECheck;
 import io.libralink.client.payment.protocol.envelope.Envelope;
-import io.libralink.client.payment.protocol.envelope.Signature;
+import io.libralink.client.payment.protocol.envelope.EnvelopeContent;
+import io.libralink.client.payment.protocol.envelope.SignatureReason;
 import io.libralink.client.payment.protocol.exception.BuilderException;
 import io.libralink.client.payment.protocol.processing.ProcessingDetails;
 import io.libralink.client.payment.protocol.processing.ProcessingFee;
@@ -43,8 +44,14 @@ public class ECheckSingleProcessorOnlyValidityRuleTest {
     @Test
     public void test_multiple_processors() throws Exception {
 
+        EnvelopeContent envelopeContent = EnvelopeContent.builder()
+                .addEntity(eCheckBuilder.build())
+                .addPub("fake")
+                .addSigReason(SignatureReason.CONFIRM)
+                .build();
+
         Envelope eCheckEnvelope = Envelope.builder()
-                .addContent(eCheckBuilder.build())
+                .addContent(envelopeContent)
                 .build();
 
         assertFalse(findFirstFailedRule(eCheckEnvelope, ECheckSingleProcessorOnlyValidityRule.class).isEmpty());
@@ -53,14 +60,26 @@ public class ECheckSingleProcessorOnlyValidityRuleTest {
     @Test
     public void test_single_processor_with_intermediary() throws Exception {
 
+        EnvelopeContent envelopeContent = EnvelopeContent.builder()
+                .addEntity(eCheckBuilder.addPayeeProcessor("fake").build())
+                .addPub("fake")
+                .addSigReason(SignatureReason.CONFIRM)
+                .build();
+
         Envelope eCheckEnvelope = Envelope.builder()
-                .addContent(eCheckBuilder.addPayeeProcessor("fake").build())
+                .addContent(envelopeContent)
                 .build();
 
         ProcessingDetails processingDetails = detailsBuilder.addEnvelope(eCheckEnvelope).build();
+        EnvelopeContent processingDetailsContent = EnvelopeContent.builder()
+                .addEntity(processingDetails)
+                .addPub("fake")
+                .addSigReason(SignatureReason.CONFIRM)
+                .build();
+
         Envelope processingDetailsEnvelope = Envelope.builder()
-                .addContent(processingDetails)
-                .addSignature(Signature.builder().addPub("fake").addSig("fake").build())
+                .addContent(processingDetailsContent)
+                .addSig("fake")
                 .build();
 
         assertFalse(findFirstFailedRule(processingDetailsEnvelope, ECheckSingleProcessorOnlyValidityRule.class).isEmpty());
@@ -69,14 +88,26 @@ public class ECheckSingleProcessorOnlyValidityRuleTest {
     @Test
     public void test_single_processor_no_intermediary() throws Exception {
 
+        EnvelopeContent envelopeContent = EnvelopeContent.builder()
+                .addEntity(eCheckBuilder.addPayeeProcessor("fake").build())
+                .addPub("fake")
+                .addSigReason(SignatureReason.CONFIRM)
+                .build();
+
         Envelope eCheckEnvelope = Envelope.builder()
-                .addContent(eCheckBuilder.addPayeeProcessor("fake").build())
+                .addContent(envelopeContent)
                 .build();
 
         ProcessingDetails processingDetails = detailsBuilderNoIntermediary.addEnvelope(eCheckEnvelope).build();
+        EnvelopeContent processingDetailsContent = EnvelopeContent.builder()
+                .addEntity(processingDetails)
+                .addPub("fake")
+                .addSigReason(SignatureReason.CONFIRM)
+                .build();
+
         Envelope processingDetailsEnvelope = Envelope.builder()
-                .addContent(processingDetails)
-                .addSignature(Signature.builder().addPub("fake").addSig("fake").build())
+                .addContent(processingDetailsContent)
+                .addSig("fake")
                 .build();
 
         assertTrue(findFirstFailedRule(processingDetailsEnvelope, ECheckSingleProcessorOnlyValidityRule.class).isEmpty());

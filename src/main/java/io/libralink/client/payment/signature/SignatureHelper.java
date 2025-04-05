@@ -1,8 +1,8 @@
 package io.libralink.client.payment.signature;
 
-import io.libralink.client.payment.protocol.AbstractEntity;
 import io.libralink.client.payment.protocol.envelope.Envelope;
-import io.libralink.client.payment.protocol.envelope.Signature;
+import io.libralink.client.payment.protocol.envelope.EnvelopeContent;
+import io.libralink.client.payment.protocol.envelope.SignatureReason;
 import io.libralink.client.payment.protocol.processing.ProcessingDetails;
 import io.libralink.client.payment.util.EncryptionUtils;
 import io.libralink.client.payment.util.JsonUtils;
@@ -14,18 +14,19 @@ public final class SignatureHelper {
 
     private SignatureHelper() {}
 
-    public static Envelope sign(Envelope envelope, Credentials credentials) throws Exception {
-        AbstractEntity content =  envelope.getContent();
-        String json = JsonUtils.toJson(content);
-        String sig = EncryptionUtils.sign(json, credentials);
-
-        Signature signature = Signature.builder()
-            .addPub(credentials.getAddress())
-            .addSig(sig)
+    public static Envelope sign(Envelope envelope, Credentials credentials, SignatureReason reason) throws Exception {
+        EnvelopeContent content = envelope.getContent();
+        EnvelopeContent signedContent = EnvelopeContent.builder(content)
+                .addSigReason(reason)
+                .addPub(credentials.getAddress())
                 .build();
 
+        String json = JsonUtils.toJson(signedContent);
+        String sig = EncryptionUtils.sign(json, credentials);
+
         return Envelope.builder(envelope)
-            .addSignature(signature)
+            .addSig(sig)
+            .addContent(signedContent)
                 .build();
     }
 
@@ -34,19 +35,20 @@ public final class SignatureHelper {
             return false;
         }
 
-        AbstractEntity content =  envelope.getContent();
-        Signature signature = envelope.getSignature();
+        EnvelopeContent content = envelope.getContent();
+        String sig = envelope.getSig();
+        String pub = content.getPub();
         String json = JsonUtils.toJson(content);
 
-        boolean isValid = recover(json, signature.getSig(), signature.getPub());
+        boolean isValid = recover(json, sig, pub);
 
-        if (ProcessingDetails.class.equals(content.getClass())) {
-            ProcessingDetails details = (ProcessingDetails) content;
+        if (ProcessingDetails.class.equals(content.getEntity().getClass())) {
+            ProcessingDetails details = (ProcessingDetails) content.getEntity();
             isValid = isValid && verify(details.getEnvelope());
         }
 
-        if (Envelope.class.equals(content.getClass())) {
-            isValid = isValid && verify((Envelope) content);
+        if (Envelope.class.equals(content.getEntity().getClass())) {
+            isValid = isValid && verify((Envelope) content.getEntity());
         }
 
         return isValid;

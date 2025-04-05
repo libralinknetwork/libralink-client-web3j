@@ -2,7 +2,6 @@ package io.libralink.client.payment.util;
 
 import io.libralink.client.payment.protocol.AbstractEntity;
 import io.libralink.client.payment.protocol.envelope.Envelope;
-import io.libralink.client.payment.protocol.envelope.Signature;
 import io.libralink.client.payment.protocol.processing.ProcessingDetails;
 
 import java.util.ArrayList;
@@ -31,17 +30,17 @@ public final class EnvelopeUtils {
 
     private static <T> Optional<AbstractEntity> findEntityByType(Envelope envelope, Class<T> clazz) {
 
-        AbstractEntity content = envelope.getContent();
-        if (content.getClass().equals(clazz)) {
-            return Optional.of(content);
+        AbstractEntity entity = envelope.getContent().getEntity();
+        if (entity.getClass().equals(clazz)) {
+            return Optional.of(entity);
         }
 
-        if (Envelope.class.equals(content.getClass())) {
-            return findEntityByType((Envelope) content, clazz);
+        if (Envelope.class.equals(entity.getClass())) {
+            return findEntityByType((Envelope) entity, clazz);
         }
 
-        if (ProcessingDetails.class.equals(content.getClass())) {
-            return findEntityByType(((ProcessingDetails) content).getEnvelope(), clazz);
+        if (ProcessingDetails.class.equals(entity.getClass())) {
+            return findEntityByType(((ProcessingDetails) entity).getEnvelope(), clazz);
         }
 
         return Optional.empty();
@@ -53,17 +52,19 @@ public final class EnvelopeUtils {
             return Optional.empty();
         }
 
-        Signature signature = envelope.getSignature();
-        if (signature != null && signature.getPub().equals(pub)) {
+        String envelopePub = envelope.getContent().getPub();
+        String envelopeSig = envelope.getSig();
+
+        if (envelopeSig != null && envelopePub.equals(pub)) {
             return Optional.of(envelope);
         }
 
-        if (Envelope.class.equals(envelope.getContent().getClass())) {
-            return findSignedEnvelopeByPub((Envelope) envelope.getContent(), pub);
+        if (Envelope.class.equals(envelope.getContent().getEntity().getClass())) {
+            return findSignedEnvelopeByPub((Envelope) envelope.getContent().getEntity(), pub);
         }
 
-        if (ProcessingDetails.class.equals(envelope.getContent().getClass())) {
-            return findSignedEnvelopeByPub(((ProcessingDetails) envelope.getContent()).getEnvelope(), pub);
+        if (ProcessingDetails.class.equals(envelope.getContent().getEntity().getClass())) {
+            return findSignedEnvelopeByPub(((ProcessingDetails) envelope.getContent().getEntity()).getEnvelope(), pub);
         }
 
         return Optional.empty();
@@ -75,7 +76,7 @@ public final class EnvelopeUtils {
             return new ArrayList<>();
         }
 
-        AbstractEntity content = envelope.getContent();
+        AbstractEntity content = envelope.getContent().getEntity();
 
         if (Envelope.class.equals(content.getClass())) {
             return findAllProcessingDetailsEnvelopes(((Envelope) content));
