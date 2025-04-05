@@ -11,6 +11,6 @@ Check https://github.com/libralinknetwork/libralink-protocol for details
 <dependency>
   <groupId>io.libralink.client</groupId>
   <artifactId>libralink-client-web3j</artifactId>
-  <version>1.0.0</version>
+  <version>1.1.0</version>
 </dependency>  
 ```
