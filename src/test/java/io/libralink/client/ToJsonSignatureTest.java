@@ -61,7 +61,9 @@ public class ToJsonSignatureTest {
         Envelope signedEnvelope = SignatureHelper.sign(envelope, PAYER_CRED, SignatureReason.IDENTITY);
         System.out.println(signedEnvelope.getSig());
 
-//        String json = JsonUtils.toJson(signedEnvelope);
+        String json = JsonUtils.toJson(signedEnvelope);
+        System.out.println(json);
+
 //        Envelope deserilaized = JsonUtils.fromJson(json, Envelope.class);
 //        assertNotNull(deserilaized);
 
