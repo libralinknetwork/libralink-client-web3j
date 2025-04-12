@@ -10,7 +10,7 @@ import java.util.List;
 public class DepositRequest extends APIObject {
 
     private AbstractEntity check;
-    private List<DepositApproval> depositApprovals;
+    private List<AbstractEntity> depositApprovals;
 
     public AbstractEntity getCheck() {
         return check;
@@ -20,11 +20,11 @@ public class DepositRequest extends APIObject {
         this.check = check;
     }
 
-    public List<DepositApproval> getDepositApprovals() {
+    public List<AbstractEntity> getDepositApprovals() {
         return depositApprovals;
     }
 
-    void setDepositApprovals(List<DepositApproval> depositApprovals) {
+    void setDepositApprovals(List<AbstractEntity> depositApprovals) {
         this.depositApprovals = depositApprovals;
     }
 
@@ -35,7 +35,7 @@ public class DepositRequest extends APIObject {
     public final static class Builder extends APIObjectBuilder {
 
         private AbstractEntity check;
-        private List<DepositApproval> depositApprovals;
+        private List<AbstractEntity> depositApprovals;
 
         private Builder() {}
 
@@ -44,7 +44,7 @@ public class DepositRequest extends APIObject {
             return this;
         }
 
-        public Builder addDepositApprovals(List<DepositApproval> depositApprovals) {
+        public Builder addDepositApprovals(List<AbstractEntity> depositApprovals) {
             this.depositApprovals = depositApprovals;
             return this;
         }
