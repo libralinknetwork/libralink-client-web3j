@@ -28,7 +28,7 @@ public final class EnvelopeUtils {
         return entityOptional.map(entity -> extractAttribute.apply((T) entity)).stream().findFirst();
     }
 
-    private static <T> Optional<AbstractEntity> findEntityByType(Envelope envelope, Class<T> clazz) {
+    public static <T> Optional<AbstractEntity> findEntityByType(Envelope envelope, Class<T> clazz) {
 
         AbstractEntity entity = envelope.getContent().getEntity();
         if (entity.getClass().equals(clazz)) {

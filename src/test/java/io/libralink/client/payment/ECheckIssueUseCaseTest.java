@@ -71,6 +71,7 @@ public class ECheckIssueUseCaseTest {
         return envelope;
     }
 
+    @Test
     public void test_create_key_pair() throws Exception {
         ECKeyPair ecKeyPair = Keys.createEcKeyPair();
         Credentials credentials = Credentials.create(ecKeyPair);
