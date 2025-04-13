@@ -24,7 +24,7 @@ public class ErrorEnvelopeBuilderTest {
 
         EnvelopeContent envelopeContent = EnvelopeContent.builder()
                 .addEntity(response)
-                .addPub("fake")
+                .addAddress("fake")
                 .addSigReason(SignatureReason.NONE)
                 .build();
 

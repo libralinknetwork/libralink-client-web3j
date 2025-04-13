@@ -22,11 +22,11 @@ public class GetBalanceRequestSignedRuleTest {
     private final Credentials otherCred = Credentials.create(OTHER_PK);
 
     final GetBalanceRequest requestInvalidAddress = GetBalanceRequest.builder()
-            .addPub("0x12345")
+            .addAddress("0x12345")
             .build();
 
     final GetBalanceRequest requestCorrectAddress = GetBalanceRequest.builder()
-            .addPub(accountCred.getAddress())
+            .addAddress(accountCred.getAddress())
             .build();
 
     EnvelopeContent noSignatureEnvelopeContent = EnvelopeContent.builder()

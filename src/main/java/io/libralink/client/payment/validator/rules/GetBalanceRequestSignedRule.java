@@ -23,7 +23,7 @@ public class GetBalanceRequestSignedRule implements EntityValidationRule {
     public boolean isValid(final Envelope envelope) {
 
         Optional<String> addressOptional = EnvelopeUtils.extractEntityAttribute(
-                envelope, GetBalanceRequest.class, GetBalanceRequest::getPub);
+                envelope, GetBalanceRequest.class, GetBalanceRequest::getAddress);
 
         Optional<Envelope> envelopeOptional = addressOptional.flatMap(address ->
                 EnvelopeUtils.findSignedEnvelopeByPub(envelope, address));

@@ -7,17 +7,16 @@ import java.math.BigDecimal;
 
 public class GetBalanceResponse extends APIObject {
 
-    private String pub;
+    private String address;
     private BigDecimal available;
     private BigDecimal pending;
-    private BigDecimal total;
 
-    public String getPub() {
-        return pub;
+    public String getAddress() {
+        return address;
     }
 
-    void setPub(String pub) {
-        this.pub = pub;
+    void setAddress(String address) {
+        this.address = address;
     }
 
     public BigDecimal getAvailable() {
@@ -36,29 +35,20 @@ public class GetBalanceResponse extends APIObject {
         this.pending = pending;
     }
 
-    public BigDecimal getTotal() {
-        return total;
-    }
-
-    void setTotal(BigDecimal total) {
-        this.total = total;
-    }
-
     public static Builder builder() {
         return new Builder();
     }
 
     public final static class Builder extends APIObjectBuilder {
 
-        private String pub;
+        private String address;
         private BigDecimal available;
         private BigDecimal pending;
-        private BigDecimal total;
 
         private Builder() {}
 
-        public Builder addPub(String pub) {
-            this.pub = pub;
+        public Builder addAddress(String address) {
+            this.address = address;
             return this;
         }
 
@@ -72,22 +62,16 @@ public class GetBalanceResponse extends APIObject {
             return this;
         }
 
-        public Builder addTotal(BigDecimal total) {
-            this.total = total;
-            return this;
-        }
-
         public GetBalanceResponse build() throws BuilderException {
 
-            if (pub == null || available == null || pending == null || total == null) {
+            if (address == null || available == null || pending == null) {
                 throw new BuilderException();
             }
 
             GetBalanceResponse response = super.build(new GetBalanceResponse());
-            response.setPub(pub);
+            response.setAddress(address);
             response.setAvailable(available);
             response.setPending(pending);
-            response.setTotal(total);
             return response;
         }
     }

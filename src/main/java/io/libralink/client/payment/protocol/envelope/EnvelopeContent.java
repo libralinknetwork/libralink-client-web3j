@@ -1,13 +1,16 @@
 package io.libralink.client.payment.protocol.envelope;
 
 import io.libralink.client.payment.protocol.AbstractEntity;
+import io.libralink.client.payment.protocol.SignatureAlgorithm;
 import io.libralink.client.payment.protocol.exception.BuilderException;
 
 public class EnvelopeContent {
 
     private AbstractEntity entity;
-    private String pub;
+    private String address;
+    private String pubKey;
     private SignatureReason sigReason;
+    private SignatureAlgorithm algorithm;
 
     public AbstractEntity getEntity() {
         return entity;
@@ -17,12 +20,12 @@ public class EnvelopeContent {
         this.entity = entity;
     }
 
-    public String getPub() {
-        return pub;
+    public String getAddress() {
+        return address;
     }
 
-    void setPub(String pub) {
-        this.pub = pub;
+    void setAddress(String address) {
+        this.address = address;
     }
 
     public SignatureReason getSigReason() {
@@ -31,6 +34,22 @@ public class EnvelopeContent {
 
     void setSigReason(SignatureReason sigReason) {
         this.sigReason = sigReason;
+    }
+
+    public String getPubKey() {
+        return pubKey;
+    }
+
+    void setPubKey(String pubKey) {
+        this.pubKey = pubKey;
+    }
+
+    public SignatureAlgorithm getAlgorithm() {
+        return algorithm;
+    }
+
+    void setAlgorithm(SignatureAlgorithm algorithm) {
+        this.algorithm = algorithm;
     }
 
     public static Builder builder() {
@@ -44,15 +63,19 @@ public class EnvelopeContent {
     public static class Builder {
 
         private AbstractEntity entity;
-        private String pub;
+        private String address;
+        private String pubKey;
         private SignatureReason sigReason;
+        private SignatureAlgorithm algorithm;
 
         private Builder() {}
 
         private Builder(EnvelopeContent content) {
             this.entity = content.entity;
-            this.pub = content.pub;
+            this.address = content.address;
+            this.pubKey = content.pubKey;
             this.sigReason = content.sigReason;
+            this.algorithm = content.algorithm;
         }
 
         public Builder addEntity(AbstractEntity entity) {
@@ -60,8 +83,18 @@ public class EnvelopeContent {
             return this;
         }
 
-        public Builder addPub(String pub) {
-            this.pub = pub;
+        public Builder addAddress(String address) {
+            this.address = address;
+            return this;
+        }
+
+        public Builder addAlgorithm(SignatureAlgorithm algorithm) {
+            this.algorithm = algorithm;
+            return this;
+        }
+
+        public Builder addPubKey(String pubKey) {
+            this.pubKey = pubKey;
             return this;
         }
 
@@ -76,10 +109,16 @@ public class EnvelopeContent {
                 throw new BuilderException();
             }
 
+            if (SignatureAlgorithm.DILITHIUM5.equals(algorithm) && pubKey == null) {
+                throw new BuilderException();
+            }
+
             EnvelopeContent envelope = new EnvelopeContent();
             envelope.setEntity(entity);
             envelope.setSigReason(sigReason);
-            envelope.setPub(pub);
+            envelope.setAddress(address);
+            envelope.setPubKey(pubKey);
+            envelope.setAlgorithm(algorithm);
             return envelope;
         }
     }

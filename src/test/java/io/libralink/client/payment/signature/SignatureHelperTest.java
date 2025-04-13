@@ -60,7 +60,7 @@ public class SignatureHelperTest {
 
         EnvelopeContent envelopeContent = EnvelopeContent.builder()
                 .addEntity(content)
-                .addPub(partyCred.getAddress())
+                .addAddress(partyCred.getAddress())
                 .addSigReason(SignatureReason.CONFIRM)
                 .build();
 
@@ -82,7 +82,7 @@ public class SignatureHelperTest {
 
         EnvelopeContent envelopeContent = EnvelopeContent.builder()
                 .addEntity(content)
-                .addPub("0x127cc4d943dff0a4bd6b024a96554a84e6247440")
+                .addAddress("0x127cc4d943dff0a4bd6b024a96554a84e6247440")
                 .addSigReason(SignatureReason.CONFIRM)
                 .build();
 

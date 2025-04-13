@@ -39,7 +39,7 @@ public class ECheckIssueUseCaseTest {
         Envelope signedEnvelope = SignatureHelper.sign(unsignedEnvelope, PAYER_CRED, SignatureReason.CONFIRM);
 
         assertNotNull(signedEnvelope.getSig());
-        assertEquals("0x2e37346b9a27ff4f4ecdbcbbd4e33e775d62aefa3d1ae80494f91ca2488e89d97820f4eaaac8152605266d0a513961b40f5dab0048945c5ff67239bdca3fc2b81c", signedEnvelope.getSig());
+        assertEquals("0x51de012ccd0db24b9c37dcabc3405bf7c7b0df8d5df519d53179cc9036aba2e730022fbe23589536ff258171678426b0a28a0b6bf7bb345e14876f09711cd8bf1c", signedEnvelope.getSig());
     }
 
     public Envelope createECheckEnvelope(String payer, String payerProcessor, String payee, String payeeProcessor, BigDecimal amount) throws BuilderException {

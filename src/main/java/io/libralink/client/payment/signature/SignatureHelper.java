@@ -1,5 +1,6 @@
 package io.libralink.client.payment.signature;
 
+import io.libralink.client.payment.protocol.SignatureAlgorithm;
 import io.libralink.client.payment.protocol.envelope.Envelope;
 import io.libralink.client.payment.protocol.envelope.EnvelopeContent;
 import io.libralink.client.payment.protocol.envelope.SignatureReason;
@@ -18,7 +19,8 @@ public final class SignatureHelper {
         EnvelopeContent content = envelope.getContent();
         EnvelopeContent signedContent = EnvelopeContent.builder(content)
                 .addSigReason(reason)
-                .addPub(credentials.getAddress())
+                .addAddress(credentials.getAddress())
+                .addAlgorithm(SignatureAlgorithm.SECP256K1)
                 .build();
 
         String json = JsonUtils.toJson(signedContent);
@@ -37,7 +39,7 @@ public final class SignatureHelper {
 
         EnvelopeContent content = envelope.getContent();
         String sig = envelope.getSig();
-        String pub = content.getPub();
+        String pub = content.getAddress();
         String json = JsonUtils.toJson(content);
 
         boolean isValid = recover(json, sig, pub);

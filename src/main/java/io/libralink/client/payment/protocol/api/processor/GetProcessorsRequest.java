@@ -5,14 +5,14 @@ import io.libralink.client.payment.protocol.exception.BuilderException;
 
 public class GetProcessorsRequest extends APIObject {
 
-    private String pub;
+    private String address;
 
-    public String getPub() {
-        return pub;
+    public String getAddress() {
+        return address;
     }
 
-    void setPub(String pub) {
-        this.pub = pub;
+    void setAddress(String address) {
+        this.address = address;
     }
 
     public static Builder builder() {
@@ -21,23 +21,23 @@ public class GetProcessorsRequest extends APIObject {
 
     public final static class Builder extends APIObjectBuilder {
 
-        private String pub;
+        private String address;
 
         private Builder() {}
 
-        public Builder addPub(String pub) {
-            this.pub = pub;
+        public Builder addAddress(String address) {
+            this.address = address;
             return this;
         }
 
         public GetProcessorsRequest build() throws BuilderException {
 
-            if (pub == null) {
+            if (address == null) {
                 throw new BuilderException();
             }
 
             GetProcessorsRequest request = super.build(new GetProcessorsRequest());
-            request.setPub(pub);
+            request.setAddress(address);
             return request;
         }
     }

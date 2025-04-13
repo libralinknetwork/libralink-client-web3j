@@ -15,14 +15,14 @@ public class RegisterKeyRequestBuilderTest {
     @Test(expected = BuilderException.class)
     public void throw_error_missing_challenge() throws BuilderException {
         RegisterKeyRequest.builder()
-                .addPub("0x12345")
+                .addAddress("0x12345")
                 .build();
     }
 
     @Test
     public void test_no_issues() throws BuilderException {
         RegisterKeyRequest.builder()
-            .addPub("0x12345")
+            .addAddress("0x12345")
             .addChallenge("challenge")
             .build();
     }

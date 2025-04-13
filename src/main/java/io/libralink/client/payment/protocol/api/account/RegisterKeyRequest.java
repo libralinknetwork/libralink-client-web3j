@@ -1,19 +1,22 @@
 package io.libralink.client.payment.protocol.api.account;
 
+import io.libralink.client.payment.protocol.SignatureAlgorithm;
 import io.libralink.client.payment.protocol.api.APIObject;
 import io.libralink.client.payment.protocol.exception.BuilderException;
 
 public class RegisterKeyRequest extends APIObject {
 
-    private String pub;
+    private String address;
+    private String pubKey;
     private String challenge;
+    private SignatureAlgorithm algorithm;
 
-    public String getPub() {
-        return pub;
+    public String getAddress() {
+        return address;
     }
 
-    void setPub(String pub) {
-        this.pub = pub;
+    void setAddress(String address) {
+        this.address = address;
     }
 
     public String getChallenge() {
@@ -24,19 +27,47 @@ public class RegisterKeyRequest extends APIObject {
         this.challenge = challenge;
     }
 
+    public SignatureAlgorithm getAlgorithm() {
+        return algorithm;
+    }
+
+    void setAlgorithm(SignatureAlgorithm algorithm) {
+        this.algorithm = algorithm;
+    }
+
+    public String getPubKey() {
+        return pubKey;
+    }
+
+    void setPubKey(String pubKey) {
+        this.pubKey = pubKey;
+    }
+
     public static Builder builder() {
         return new Builder();
     }
 
     public final static class Builder extends APIObjectBuilder {
 
-        private String pub;
+        private String address;
+        private String pubKey;
         private String challenge;
+        private SignatureAlgorithm algorithm;
 
         private Builder() {}
 
-        public Builder addPub(String pub) {
-            this.pub = pub;
+        public Builder addAddress(String address) {
+            this.address = address;
+            return this;
+        }
+
+        public Builder addAlgorithm(SignatureAlgorithm algorithm) {
+            this.algorithm = algorithm;
+            return this;
+        }
+
+        public Builder addPubKey(String pubKey) {
+            this.pubKey = pubKey;
             return this;
         }
 
@@ -47,13 +78,19 @@ public class RegisterKeyRequest extends APIObject {
 
         public RegisterKeyRequest build() throws BuilderException {
 
-            if (pub == null || challenge == null) {
+            if (address == null || challenge == null) {
+                throw new BuilderException();
+            }
+
+            if (SignatureAlgorithm.DILITHIUM5.equals(algorithm) && pubKey == null) {
                 throw new BuilderException();
             }
 
             RegisterKeyRequest request = super.build(new RegisterKeyRequest());
-            request.setPub(pub);
+            request.setAddress(address);
+            request.setPubKey(pubKey);
             request.setChallenge(challenge);
+            request.setAlgorithm(algorithm);
             return request;
         }
     }

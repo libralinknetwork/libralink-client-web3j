@@ -52,7 +52,7 @@ public final class EnvelopeUtils {
             return Optional.empty();
         }
 
-        String envelopePub = envelope.getContent().getPub();
+        String envelopePub = envelope.getContent().getAddress();
         String envelopeSig = envelope.getSig();
 
         if (envelopeSig != null && envelopePub.equals(pub)) {

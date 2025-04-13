@@ -117,6 +117,6 @@ public class ToJsonSignatureTest {
         Envelope processorConfirmEnvelopeSigned = SignatureHelper.sign(processorConfirmEnvelope, PROCESSOR_CRED, SignatureReason.CONFIRM);
         System.out.println(JsonUtils.toJson(processorConfirmEnvelopeSigned));
 
-        assertEquals("0x1c9c03a3a41417e8afa06482c8a8c49bf3b3774edf667ea2fa600173a981c3bd5b42a966526dc720b95138d7480f33d877f9682455d2eabe63f067d02c9b811d1b", processorConfirmEnvelopeSigned.getSig());
+        assertEquals("0x14fe5b2aa54d996c3c5f9d0589de3d74f440f8e69640a8c9d6f8dbf65daf60036bfa2e3103da8b8f6595a2635a3cf7612dde3f5ebbe254f702eb4acab6effe631b", processorConfirmEnvelopeSigned.getSig());
     }
 }

@@ -5,14 +5,14 @@ import io.libralink.client.payment.protocol.exception.BuilderException;
 
 public class GetBalanceRequest extends APIObject {
 
-    private String pub;
+    private String address;
 
-    public String getPub() {
-        return pub;
+    public String getAddress() {
+        return address;
     }
 
-    void setPub(String pub) {
-        this.pub = pub;
+    void setAddress(String address) {
+        this.address = address;
     }
 
     public static Builder builder() {
@@ -21,23 +21,23 @@ public class GetBalanceRequest extends APIObject {
 
     public final static class Builder extends APIObjectBuilder {
 
-        private String pub;
+        private String address;
 
         private Builder() {}
 
-        public Builder addPub(String pub) {
-            this.pub = pub;
+        public Builder addAddress(String address) {
+            this.address = address;
             return this;
         }
 
         public GetBalanceRequest build() throws BuilderException {
 
-            if (pub == null) {
+            if (address == null) {
                 throw new BuilderException();
             }
 
             GetBalanceRequest request = super.build(new GetBalanceRequest());
-            request.setPub(pub);
+            request.setAddress(address);
             return request;
         }
     }

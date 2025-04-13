@@ -4,15 +4,15 @@ import io.libralink.client.payment.protocol.exception.BuilderException;
 
 public class ProcessorDetails {
 
-    private String pub;
+    private String address;
     private Boolean isDefault;
 
-    public String getPub() {
-        return pub;
+    public String getAddress() {
+        return address;
     }
 
-    void setPub(String pub) {
-        this.pub = pub;
+    void setAddress(String address) {
+        this.address = address;
     }
 
     public Boolean getDefault() {
@@ -29,13 +29,13 @@ public class ProcessorDetails {
 
     public final static class Builder {
 
-        private String pub;
+        private String address;
         private Boolean isDefault;
 
         private Builder() {}
 
-        public Builder addPub(String pub) {
-            this.pub = pub;
+        public Builder addAddress(String address) {
+            this.address = address;
             return this;
         }
 
@@ -46,12 +46,12 @@ public class ProcessorDetails {
 
         public ProcessorDetails build() throws BuilderException {
 
-            if (pub == null || isDefault == null) {
+            if (address == null || isDefault == null) {
                 throw new BuilderException();
             }
 
             ProcessorDetails trustedProcessor = new ProcessorDetails();
-            trustedProcessor.setPub(pub);
+            trustedProcessor.setAddress(address);
             trustedProcessor.setDefault(isDefault);
             return trustedProcessor;
         }

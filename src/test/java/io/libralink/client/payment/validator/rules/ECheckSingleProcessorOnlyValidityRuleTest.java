@@ -46,7 +46,7 @@ public class ECheckSingleProcessorOnlyValidityRuleTest {
 
         EnvelopeContent envelopeContent = EnvelopeContent.builder()
                 .addEntity(eCheckBuilder.build())
-                .addPub("fake")
+                .addAddress("fake")
                 .addSigReason(SignatureReason.CONFIRM)
                 .build();
 
@@ -62,7 +62,7 @@ public class ECheckSingleProcessorOnlyValidityRuleTest {
 
         EnvelopeContent envelopeContent = EnvelopeContent.builder()
                 .addEntity(eCheckBuilder.addPayeeProcessor("fake").build())
-                .addPub("fake")
+                .addAddress("fake")
                 .addSigReason(SignatureReason.CONFIRM)
                 .build();
 
@@ -73,7 +73,7 @@ public class ECheckSingleProcessorOnlyValidityRuleTest {
         ProcessingDetails processingDetails = detailsBuilder.addEnvelope(eCheckEnvelope).build();
         EnvelopeContent processingDetailsContent = EnvelopeContent.builder()
                 .addEntity(processingDetails)
-                .addPub("fake")
+                .addAddress("fake")
                 .addSigReason(SignatureReason.CONFIRM)
                 .build();
 
@@ -90,7 +90,7 @@ public class ECheckSingleProcessorOnlyValidityRuleTest {
 
         EnvelopeContent envelopeContent = EnvelopeContent.builder()
                 .addEntity(eCheckBuilder.addPayeeProcessor("fake").build())
-                .addPub("fake")
+                .addAddress("fake")
                 .addSigReason(SignatureReason.CONFIRM)
                 .build();
 
@@ -101,7 +101,7 @@ public class ECheckSingleProcessorOnlyValidityRuleTest {
         ProcessingDetails processingDetails = detailsBuilderNoIntermediary.addEnvelope(eCheckEnvelope).build();
         EnvelopeContent processingDetailsContent = EnvelopeContent.builder()
                 .addEntity(processingDetails)
-                .addPub("fake")
+                .addAddress("fake")
                 .addSigReason(SignatureReason.CONFIRM)
                 .build();
 

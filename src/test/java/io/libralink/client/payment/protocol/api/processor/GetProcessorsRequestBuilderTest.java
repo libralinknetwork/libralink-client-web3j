@@ -14,7 +14,7 @@ public class GetProcessorsRequestBuilderTest {
     @Test
     public void test_no_issues() throws BuilderException {
         GetProcessorsRequest.builder()
-                .addPub("0x12345")
+                .addAddress("0x12345")
                 .build();
     }
 }
