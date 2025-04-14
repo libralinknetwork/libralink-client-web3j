@@ -8,7 +8,8 @@ public class RegisterKeyRequest extends APIObject {
 
     private String address;
     private String pubKey;
-    private String challenge;
+    private String confirmationId;
+    private String hash;
     private SignatureAlgorithm algorithm;
 
     public String getAddress() {
@@ -19,12 +20,20 @@ public class RegisterKeyRequest extends APIObject {
         this.address = address;
     }
 
-    public String getChallenge() {
-        return challenge;
+    public String getConfirmationId() {
+        return confirmationId;
     }
 
-    void setChallenge(String challenge) {
-        this.challenge = challenge;
+    void setConfirmationId(String confirmationId) {
+        this.confirmationId = confirmationId;
+    }
+
+    public String getHash() {
+        return hash;
+    }
+
+    void setHash(String hash) {
+        this.hash = hash;
     }
 
     public SignatureAlgorithm getAlgorithm() {
@@ -51,7 +60,8 @@ public class RegisterKeyRequest extends APIObject {
 
         private String address;
         private String pubKey;
-        private String challenge;
+        private String confirmationId;
+        private String hash;
         private SignatureAlgorithm algorithm;
 
         private Builder() {}
@@ -71,14 +81,19 @@ public class RegisterKeyRequest extends APIObject {
             return this;
         }
 
-        public Builder addChallenge(String challenge) {
-            this.challenge = challenge;
+        public Builder addConfirmationId(String confirmationId) {
+            this.confirmationId = confirmationId;
+            return this;
+        }
+
+        public Builder addHash(String hash) {
+            this.hash = hash;
             return this;
         }
 
         public RegisterKeyRequest build() throws BuilderException {
 
-            if (address == null || challenge == null) {
+            if (address == null || confirmationId == null || hash == null) {
                 throw new BuilderException();
             }
 
@@ -89,7 +104,8 @@ public class RegisterKeyRequest extends APIObject {
             RegisterKeyRequest request = super.build(new RegisterKeyRequest());
             request.setAddress(address);
             request.setPubKey(pubKey);
-            request.setChallenge(challenge);
+            request.setConfirmationId(confirmationId);
+            request.setHash(hash);
             request.setAlgorithm(algorithm);
             return request;
         }
