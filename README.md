@@ -6,6 +6,16 @@
 
 Check https://github.com/libralinknetwork/libralink-protocol for details
 
+## Clone 
+```
+git clone --recurse-submodules git@github.com:libralinknetwork/libralink-client-web3j.git
+```
+
+## Pull Module 
+```
+git submodule update --remote --merge
+```
+
 ## Usage
 ### Add Dependency
 
@@ -13,6 +23,6 @@ Check https://github.com/libralinknetwork/libralink-protocol for details
 <dependency>
   <groupId>io.libralink.client</groupId>
   <artifactId>libralink-client-web3j</artifactId>
-  <version>1.6.0</version>
+  <version>1.7.0</version>
 </dependency>  
 ```

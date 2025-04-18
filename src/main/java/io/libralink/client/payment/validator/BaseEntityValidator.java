@@ -1,6 +1,6 @@
 package io.libralink.client.payment.validator;
 
-import io.libralink.client.payment.protocol.envelope.Envelope;
+import io.libralink.client.payment.proto.Libralink;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -12,13 +12,17 @@ public final class BaseEntityValidator {
 
     private BaseEntityValidator() {}
 
-    public static Optional<String> findFirstFailedRule(Envelope envelope, Class<? extends EntityValidationRule>... ruleClasses)
+    public static Optional<String> findFirstFailedRule(Libralink.Envelope envelope, Class<? extends EntityValidationRule>... ruleClasses)
             throws InstantiationException, IllegalAccessException {
 
         for (Class<? extends EntityValidationRule> ruleClass: ruleClasses) {
 
             EntityValidationRule rule = ruleClass.newInstance();
-            if (!rule.isValid(envelope)) {
+            try {
+                if (!rule.isValid(envelope)) {
+                    return Optional.of(rule.name());
+                }
+            } catch (Exception e) {
                 return Optional.of(rule.name());
             }
         }

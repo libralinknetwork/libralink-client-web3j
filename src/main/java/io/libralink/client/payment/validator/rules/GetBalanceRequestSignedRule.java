@@ -1,7 +1,6 @@
 package io.libralink.client.payment.validator.rules;
 
-import io.libralink.client.payment.protocol.api.balance.GetBalanceRequest;
-import io.libralink.client.payment.protocol.envelope.Envelope;
+import io.libralink.client.payment.proto.Libralink;
 import io.libralink.client.payment.signature.SignatureHelper;
 import io.libralink.client.payment.util.EnvelopeUtils;
 import io.libralink.client.payment.validator.EntityValidationRule;
@@ -20,13 +19,19 @@ public class GetBalanceRequestSignedRule implements EntityValidationRule {
     }
 
     @Override
-    public boolean isValid(final Envelope envelope) {
+    public boolean isValid(final Libralink.Envelope envelope) throws Exception {
 
         Optional<String> addressOptional = EnvelopeUtils.extractEntityAttribute(
-                envelope, GetBalanceRequest.class, GetBalanceRequest::getAddress);
+                envelope, Libralink.GetBalanceRequest.class, Libralink.GetBalanceRequest::getAddress);
 
-        Optional<Envelope> envelopeOptional = addressOptional.flatMap(address ->
-                EnvelopeUtils.findSignedEnvelopeByPub(envelope, address));
+        Optional<Libralink.Envelope> envelopeOptional = addressOptional.flatMap(address ->
+        {
+            try {
+                return EnvelopeUtils.findSignedEnvelopeByPub(envelope, address);
+            } catch (Exception e) {
+                return Optional.empty();
+            }
+        });
 
         if (envelopeOptional.isPresent()) {
             try {

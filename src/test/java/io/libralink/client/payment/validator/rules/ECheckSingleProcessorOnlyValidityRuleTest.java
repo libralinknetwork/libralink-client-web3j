@@ -1,16 +1,18 @@
 package io.libralink.client.payment.validator.rules;
 
-import io.libralink.client.payment.protocol.echeck.ECheck;
-import io.libralink.client.payment.protocol.envelope.Envelope;
-import io.libralink.client.payment.protocol.envelope.EnvelopeContent;
-import io.libralink.client.payment.protocol.envelope.SignatureReason;
-import io.libralink.client.payment.protocol.exception.BuilderException;
-import io.libralink.client.payment.protocol.processing.ProcessingDetails;
-import io.libralink.client.payment.protocol.processing.ProcessingFee;
+import com.google.protobuf.Any;
+import io.libralink.client.payment.proto.Libralink;
+import io.libralink.client.payment.proto.builder.echeck.ECheckBuilder;
+import io.libralink.client.payment.proto.builder.echeck.ECheckSplitBuilder;
+import io.libralink.client.payment.proto.builder.envelope.EnvelopeBuilder;
+import io.libralink.client.payment.proto.builder.envelope.EnvelopeContentBuilder;
+import io.libralink.client.payment.proto.builder.fee.ProcessingFeeBuilder;
+import io.libralink.client.payment.proto.builder.exception.BuilderException;
 import org.junit.Test;
 import org.web3j.crypto.Credentials;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 import static io.libralink.client.payment.validator.BaseEntityValidator.findFirstFailedRule;
@@ -21,36 +23,40 @@ public class ECheckSingleProcessorOnlyValidityRuleTest {
     final String PROCESSOR_PK = "19dc73eee8a41b5ea3d361c9c3f5b57af96835b242fc223e45f2b79f9194d4f9";
     final Credentials processorCred = Credentials.create(PROCESSOR_PK);
 
-    final ECheck.Builder eCheckBuilder = ECheck.builder()
-            .addPayer("fake")
-            .addPayerProcessor("fake")
-            .addPayee("fake")
-            .addPayeeProcessor(processorCred.getAddress())
+    final ECheckBuilder eCheckBuilder = ECheckBuilder.newBuilder()
+            .addCorrelationId(UUID.fromString("e3b73203-17cb-437b-a4ba-22ae9047bb39"))
+            .addFrom("fake")
+            .addFromProc("fake")
+            .addTo("fake")
+            .addToProc(processorCred.getAddress())
             .addCurrency("USDC")
             .addCreatedAt(1743526954033L)
             .addExpiresAt(2743526954133L)
-            .addFaceAmount(BigDecimal.valueOf(150));
+            .addFaceAmount(BigDecimal.valueOf(150))
+            .addSplits(List.of(ECheckSplitBuilder.newBuilder()
+                    .addTo("fake")
+                    .addToProc("fake")
+                    .addAmount(BigDecimal.valueOf(150))
+                    .build()));
 
-    final ProcessingFee fee = ProcessingFee.builder()
-            .addFeeType("flat").addAmount(BigDecimal.valueOf(5)).build();
+    final ProcessingFeeBuilder feeBuilderNoIntermediary = ProcessingFeeBuilder.newBuilder()
+            .addFeeType("flat").addAmount(BigDecimal.valueOf(5));
 
-    ProcessingDetails.Builder detailsBuilderNoIntermediary = ProcessingDetails.builder()
-        .addFee(fee);
-
-    ProcessingDetails.Builder detailsBuilder = ProcessingDetails.builder()
+    final ProcessingFeeBuilder feeBuilder = ProcessingFeeBuilder.newBuilder()
             .addIntermediary(UUID.randomUUID().toString())
-            .addFee(fee);
+            .addFeeType("flat").addAmount(BigDecimal.valueOf(5));
 
     @Test
     public void test_multiple_processors() throws Exception {
 
-        EnvelopeContent envelopeContent = EnvelopeContent.builder()
-                .addEntity(eCheckBuilder.build())
+        Libralink.EnvelopeContent envelopeContent = EnvelopeContentBuilder.newBuilder()
+                .addEntity(Any.pack(eCheckBuilder.build()))
                 .addAddress("fake")
-                .addSigReason(SignatureReason.CONFIRM)
+                .addSigReason(Libralink.SignatureReason.CONFIRM)
                 .build();
 
-        Envelope eCheckEnvelope = Envelope.builder()
+        Libralink.Envelope eCheckEnvelope = EnvelopeBuilder.newBuilder()
+                .addId(UUID.randomUUID())
                 .addContent(envelopeContent)
                 .build();
 
@@ -60,24 +66,26 @@ public class ECheckSingleProcessorOnlyValidityRuleTest {
     @Test
     public void test_single_processor_with_intermediary() throws Exception {
 
-        EnvelopeContent envelopeContent = EnvelopeContent.builder()
-                .addEntity(eCheckBuilder.addPayeeProcessor("fake").build())
+        Libralink.EnvelopeContent envelopeContent = EnvelopeContentBuilder.newBuilder()
+                .addEntity(Any.pack(eCheckBuilder.addToProc("fake").build()))
                 .addAddress("fake")
-                .addSigReason(SignatureReason.CONFIRM)
+                .addSigReason(Libralink.SignatureReason.CONFIRM)
                 .build();
 
-        Envelope eCheckEnvelope = Envelope.builder()
+        Libralink.Envelope eCheckEnvelope = EnvelopeBuilder.newBuilder()
+                .addId(UUID.randomUUID())
                 .addContent(envelopeContent)
                 .build();
 
-        ProcessingDetails processingDetails = detailsBuilder.addEnvelope(eCheckEnvelope).build();
-        EnvelopeContent processingDetailsContent = EnvelopeContent.builder()
-                .addEntity(processingDetails)
+        Libralink.ProcessingFee processingDetails = feeBuilder.addEnvelope(eCheckEnvelope).build();
+        Libralink.EnvelopeContent processingDetailsContent = EnvelopeContentBuilder.newBuilder()
+                .addEntity(Any.pack(processingDetails))
                 .addAddress("fake")
-                .addSigReason(SignatureReason.CONFIRM)
+                .addSigReason(Libralink.SignatureReason.CONFIRM)
                 .build();
 
-        Envelope processingDetailsEnvelope = Envelope.builder()
+        Libralink.Envelope processingDetailsEnvelope = EnvelopeBuilder.newBuilder()
+                .addId(UUID.randomUUID())
                 .addContent(processingDetailsContent)
                 .addSig("fake")
                 .build();
@@ -88,24 +96,26 @@ public class ECheckSingleProcessorOnlyValidityRuleTest {
     @Test
     public void test_single_processor_no_intermediary() throws Exception {
 
-        EnvelopeContent envelopeContent = EnvelopeContent.builder()
-                .addEntity(eCheckBuilder.addPayeeProcessor("fake").build())
+        Libralink.EnvelopeContent envelopeContent = EnvelopeContentBuilder.newBuilder()
+                .addEntity(Any.pack(eCheckBuilder.addToProc("fake").build()))
                 .addAddress("fake")
-                .addSigReason(SignatureReason.CONFIRM)
+                .addSigReason(Libralink.SignatureReason.CONFIRM)
                 .build();
 
-        Envelope eCheckEnvelope = Envelope.builder()
+        Libralink.Envelope eCheckEnvelope = EnvelopeBuilder.newBuilder()
+                .addId(UUID.randomUUID())
                 .addContent(envelopeContent)
                 .build();
 
-        ProcessingDetails processingDetails = detailsBuilderNoIntermediary.addEnvelope(eCheckEnvelope).build();
-        EnvelopeContent processingDetailsContent = EnvelopeContent.builder()
-                .addEntity(processingDetails)
+        Libralink.ProcessingFee processingDetails = feeBuilderNoIntermediary.addEnvelope(eCheckEnvelope).build();
+        Libralink.EnvelopeContent processingDetailsContent = EnvelopeContentBuilder.newBuilder()
+                .addEntity(Any.pack(processingDetails))
                 .addAddress("fake")
-                .addSigReason(SignatureReason.CONFIRM)
+                .addSigReason(Libralink.SignatureReason.CONFIRM)
                 .build();
 
-        Envelope processingDetailsEnvelope = Envelope.builder()
+        Libralink.Envelope processingDetailsEnvelope = EnvelopeBuilder.newBuilder()
+                .addId(UUID.randomUUID())
                 .addContent(processingDetailsContent)
                 .addSig("fake")
                 .build();

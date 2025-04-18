@@ -1,13 +1,16 @@
 package io.libralink.client.payment.validator.rules;
 
-import io.libralink.client.payment.protocol.api.balance.GetBalanceRequest;
-import io.libralink.client.payment.protocol.envelope.Envelope;
-import io.libralink.client.payment.protocol.envelope.EnvelopeContent;
-import io.libralink.client.payment.protocol.envelope.SignatureReason;
-import io.libralink.client.payment.protocol.exception.BuilderException;
+import com.google.protobuf.Any;
+import io.libralink.client.payment.proto.Libralink;
+import io.libralink.client.payment.proto.builder.api.GetBalanceRequestBuilder;
+import io.libralink.client.payment.proto.builder.envelope.EnvelopeBuilder;
+import io.libralink.client.payment.proto.builder.envelope.EnvelopeContentBuilder;
+import io.libralink.client.payment.proto.builder.exception.BuilderException;
 import io.libralink.client.payment.signature.SignatureHelper;
 import org.junit.Test;
 import org.web3j.crypto.Credentials;
+
+import java.util.UUID;
 
 import static io.libralink.client.payment.validator.BaseEntityValidator.findFirstFailedRule;
 import static org.junit.Assert.assertFalse;
@@ -21,27 +24,29 @@ public class GetBalanceRequestSignedRuleTest {
     private String OTHER_PK = "1c9f40ff758f70b5c59c9df78738fdd122c4f5d6324e61448a3f516b7df00b22";
     private final Credentials otherCred = Credentials.create(OTHER_PK);
 
-    final GetBalanceRequest requestInvalidAddress = GetBalanceRequest.builder()
+    final Libralink.GetBalanceRequest requestInvalidAddress = GetBalanceRequestBuilder.newBuilder()
             .addAddress("0x12345")
             .build();
 
-    final GetBalanceRequest requestCorrectAddress = GetBalanceRequest.builder()
+    final Libralink.GetBalanceRequest requestCorrectAddress = GetBalanceRequestBuilder.newBuilder()
             .addAddress(accountCred.getAddress())
             .build();
 
-    EnvelopeContent noSignatureEnvelopeContent = EnvelopeContent.builder()
-            .addEntity(requestCorrectAddress)
+    Libralink.EnvelopeContent noSignatureEnvelopeContent = EnvelopeContentBuilder.newBuilder()
+            .addEntity(Any.pack(requestCorrectAddress))
             .build();
 
-    final Envelope noSignatureEnvelope = Envelope.builder()
+    final Libralink.Envelope noSignatureEnvelope = EnvelopeBuilder.newBuilder()
+            .addId(UUID.randomUUID())
             .addContent(noSignatureEnvelopeContent)
             .build();
 
-    EnvelopeContent noSignatureInvalidAddressEnvelopeContent = EnvelopeContent.builder()
-            .addEntity(requestInvalidAddress)
+    Libralink.EnvelopeContent noSignatureInvalidAddressEnvelopeContent = EnvelopeContentBuilder.newBuilder()
+            .addEntity(Any.pack(requestInvalidAddress))
             .build();
 
-    final Envelope noSignatureInvalidAddressEnvelope = Envelope.builder()
+    final Libralink.Envelope noSignatureInvalidAddressEnvelope = EnvelopeBuilder.newBuilder()
+            .addId(UUID.randomUUID())
             .addContent(noSignatureInvalidAddressEnvelopeContent)
             .build();
 
@@ -53,21 +58,21 @@ public class GetBalanceRequestSignedRuleTest {
     @Test
     public void test_signature_present() throws Exception {
 
-        Envelope signedEnvelope = SignatureHelper.sign(noSignatureEnvelope, accountCred, SignatureReason.CONFIRM);
+        Libralink.Envelope signedEnvelope = SignatureHelper.sign(noSignatureEnvelope, accountCred, Libralink.SignatureReason.CONFIRM);
         assertTrue(findFirstFailedRule(signedEnvelope, GetBalanceRequestSignedRule.class).isEmpty());
     }
 
     @Test
     public void test_invalid_signature() throws Exception {
 
-        Envelope signedEnvelope = SignatureHelper.sign(noSignatureEnvelope, otherCred, SignatureReason.CONFIRM);
+        Libralink.Envelope signedEnvelope = SignatureHelper.sign(noSignatureEnvelope, otherCred, Libralink.SignatureReason.CONFIRM);
         assertFalse(findFirstFailedRule(signedEnvelope, GetBalanceRequestSignedRule.class).isEmpty());
     }
 
     @Test
     public void test_invalid_address() throws Exception {
 
-        Envelope signedEnvelope = SignatureHelper.sign(noSignatureInvalidAddressEnvelope, accountCred, SignatureReason.CONFIRM);
+        Libralink.Envelope signedEnvelope = SignatureHelper.sign(noSignatureInvalidAddressEnvelope, accountCred, Libralink.SignatureReason.CONFIRM);
         assertFalse(findFirstFailedRule(signedEnvelope, GetBalanceRequestSignedRule.class).isEmpty());
     }
 

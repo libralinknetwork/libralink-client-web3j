@@ -1,8 +1,8 @@
 package io.libralink.client.payment.util;
 
-import io.libralink.client.payment.protocol.AbstractEntity;
-import io.libralink.client.payment.protocol.envelope.Envelope;
-import io.libralink.client.payment.protocol.processing.ProcessingDetails;
+import com.google.protobuf.Any;
+import com.google.protobuf.Message;
+import io.libralink.client.payment.proto.Libralink;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -17,36 +17,41 @@ public final class EnvelopeUtils {
      * @param envelope Envelope leading to ECheck or DepositApproval
      * @return <b>payee pub</b> if found
      */
-    public static <T, K> Optional<K> extractEntityAttribute(
-            Envelope envelope, Class<T> clazz, EntityAttributeExtractFunc<T, K> extractAttribute) {
+    public static <T extends Message, K> Optional<K> extractEntityAttribute(
+            Libralink.Envelope envelope, Class<T> clazz, EntityAttributeExtractFunc<T, K> extractAttribute) throws Exception {
 
         if (envelope == null) {
             return Optional.empty();
         }
 
-        Optional<AbstractEntity> entityOptional = findEntityByType(envelope, clazz);
-        return entityOptional.map(entity -> extractAttribute.apply((T) entity)).stream().findFirst();
+        Optional<T> entityOptional = findEntityByType(envelope, clazz);
+        return entityOptional.map(extractAttribute::apply).stream().findFirst();
     }
 
-    public static <T> Optional<AbstractEntity> findEntityByType(Envelope envelope, Class<T> clazz) {
+    public static <T extends Message> Optional<T> findEntityByType(Libralink.Envelope envelope, Class<T> clazz) throws Exception {
 
-        AbstractEntity entity = envelope.getContent().getEntity();
-        if (entity.getClass().equals(clazz)) {
-            return Optional.of(entity);
+        Any entity = envelope.getContent().getEntity();
+        if (entity.is(clazz)) {
+            T unpacked = entity.unpack(clazz);
+            return Optional.of(unpacked);
         }
 
-        if (Envelope.class.equals(entity.getClass())) {
-            return findEntityByType((Envelope) entity, clazz);
+        if (entity.is(Libralink.Envelope.class)) {
+            return findEntityByType(entity.unpack(Libralink.Envelope.class), clazz);
         }
 
-        if (ProcessingDetails.class.equals(entity.getClass())) {
-            return findEntityByType(((ProcessingDetails) entity).getEnvelope(), clazz);
+        if (entity.is(Libralink.ProcessingFee.class)) {
+            return findEntityByType(entity.unpack(Libralink.ProcessingFee.class).getEnvelope(), clazz);
+        }
+
+        if (entity.is(Libralink.SurchargeRequest.class)) {
+            return findEntityByType(entity.unpack(Libralink.SurchargeRequest.class).getEnvelope(), clazz);
         }
 
         return Optional.empty();
     }
 
-    public static Optional<Envelope> findSignedEnvelopeByPub(Envelope envelope, String pub) {
+    public static Optional<Libralink.Envelope> findSignedEnvelopeByPub(Libralink.Envelope envelope, String pub) throws Exception {
 
         if (envelope == null) {
             return Optional.empty();
@@ -59,32 +64,37 @@ public final class EnvelopeUtils {
             return Optional.of(envelope);
         }
 
-        if (Envelope.class.equals(envelope.getContent().getEntity().getClass())) {
-            return findSignedEnvelopeByPub((Envelope) envelope.getContent().getEntity(), pub);
+        Any entity = envelope.getContent().getEntity();
+        if (entity.is(Libralink.Envelope.class)) {
+            return findSignedEnvelopeByPub(entity.unpack(Libralink.Envelope.class), pub);
         }
 
-        if (ProcessingDetails.class.equals(envelope.getContent().getEntity().getClass())) {
-            return findSignedEnvelopeByPub(((ProcessingDetails) envelope.getContent().getEntity()).getEnvelope(), pub);
+        if (entity.is(Libralink.ProcessingFee.class)) {
+            return findSignedEnvelopeByPub(entity.unpack(Libralink.ProcessingFee.class).getEnvelope(), pub);
+        }
+
+        if (entity.is(Libralink.SurchargeRequest.class)) {
+            return findSignedEnvelopeByPub(entity.unpack(Libralink.SurchargeRequest.class).getEnvelope(), pub);
         }
 
         return Optional.empty();
     }
 
-    public static List<Envelope> findAllProcessingDetailsEnvelopes(Envelope envelope) {
+    public static List<Libralink.Envelope> findAllProcessingDetailsEnvelopes(Libralink.Envelope envelope) throws Exception {
 
         if (envelope == null) {
             return new ArrayList<>();
         }
 
-        AbstractEntity content = envelope.getContent().getEntity();
+        Any content = envelope.getContent().getEntity();
 
-        if (Envelope.class.equals(content.getClass())) {
-            return findAllProcessingDetailsEnvelopes(((Envelope) content));
+        if (content.is(Libralink.Envelope.class)) {
+            return findAllProcessingDetailsEnvelopes(content.unpack(Libralink.Envelope.class));
 
-        } else if (ProcessingDetails.class.equals(content.getClass())) {
-            List<Envelope> result = new ArrayList<>();
+        } else if (content.is(Libralink.ProcessingFee.class)) {
+            List<Libralink.Envelope> result = new ArrayList<>();
             result.add(envelope);
-            result.addAll(findAllProcessingDetailsEnvelopes(((ProcessingDetails) content).getEnvelope()));
+            result.addAll(findAllProcessingDetailsEnvelopes(content.unpack(Libralink.ProcessingFee.class).getEnvelope()));
             return result;
 
         } else {

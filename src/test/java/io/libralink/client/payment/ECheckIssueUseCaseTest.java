@@ -1,10 +1,12 @@
 package io.libralink.client.payment;
 
-import io.libralink.client.payment.protocol.echeck.ECheck;
-import io.libralink.client.payment.protocol.envelope.Envelope;
-import io.libralink.client.payment.protocol.envelope.EnvelopeContent;
-import io.libralink.client.payment.protocol.envelope.SignatureReason;
-import io.libralink.client.payment.protocol.exception.BuilderException;
+import com.google.protobuf.Any;
+import io.libralink.client.payment.proto.Libralink;
+import io.libralink.client.payment.proto.builder.echeck.ECheckBuilder;
+import io.libralink.client.payment.proto.builder.echeck.ECheckSplitBuilder;
+import io.libralink.client.payment.proto.builder.envelope.EnvelopeBuilder;
+import io.libralink.client.payment.proto.builder.envelope.EnvelopeContentBuilder;
+import io.libralink.client.payment.proto.builder.exception.BuilderException;
 import io.libralink.client.payment.signature.SignatureHelper;
 import org.junit.Test;
 import org.web3j.crypto.Credentials;
@@ -12,6 +14,7 @@ import org.web3j.crypto.ECKeyPair;
 import org.web3j.crypto.Keys;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -35,35 +38,40 @@ public class ECheckIssueUseCaseTest {
     public void test_issue_echeck() throws Exception {
 
         /* 1. Payee creates E-Check and signs it */
-        Envelope unsignedEnvelope = createECheckEnvelope(PAYER_ADDR, PROCESSOR_ADDR, PAYEE_ADDR, PROCESSOR_ADDR, BigDecimal.valueOf(150));
-        Envelope signedEnvelope = SignatureHelper.sign(unsignedEnvelope, PAYER_CRED, SignatureReason.CONFIRM);
+        Libralink.Envelope unsignedEnvelope = createECheckEnvelope(PAYER_ADDR, PROCESSOR_ADDR, PAYEE_ADDR, PROCESSOR_ADDR, BigDecimal.valueOf(150));
+        Libralink.Envelope signedEnvelope = SignatureHelper.sign(unsignedEnvelope, PAYER_CRED, Libralink.SignatureReason.CONFIRM);
 
         assertNotNull(signedEnvelope.getSig());
-        assertEquals("0x51de012ccd0db24b9c37dcabc3405bf7c7b0df8d5df519d53179cc9036aba2e730022fbe23589536ff258171678426b0a28a0b6bf7bb345e14876f09711cd8bf1c", signedEnvelope.getSig());
+        assertEquals("0x143847d584b0aaee7b0fdeaec6e9e5b264093bb56413d72a484e16a81a0a3f635d1fe8c2aac5ea4884597f3b8d889dfa8ec41f24790ded21e3ba98fdc17fdcc81c", signedEnvelope.getSig());
     }
 
-    public Envelope createECheckEnvelope(String payer, String payerProcessor, String payee, String payeeProcessor, BigDecimal amount) throws BuilderException {
+    public Libralink.Envelope createECheckEnvelope(String payer, String payerProcessor, String payee, String payeeProcessor, BigDecimal amount) throws BuilderException {
 
         long createdAtUtc = 1743526954033L;
         long expiresAtUtc = 1843526954033L;
 
-        ECheck eCheck = ECheck.builder()
+        Libralink.ECheck eCheck = ECheckBuilder.newBuilder()
+                .addCorrelationId(UUID.fromString("8ee509de-743f-45da-8815-a64416ec612e"))
                 .addCreatedAt(createdAtUtc)
                 .addExpiresAt(expiresAtUtc)
                 .addFaceAmount(amount)
                 .addCurrency("USDC")
-                .addPayee(payee)
-                .addPayeeProcessor(payeeProcessor)
-                .addPayer(payer)
-                .addPayerProcessor(payerProcessor)
-                .addId(UUID.fromString("9eef8f11-2baf-4f7a-8529-38fc20444d88"))
+                .addTo(payee)
+                .addToProc(payeeProcessor)
+                .addFrom(payer)
+                .addFromProc(payerProcessor)
+                .addSplits(List.of(ECheckSplitBuilder.newBuilder()
+                        .addTo(payee)
+                        .addToProc(payeeProcessor)
+                        .addAmount(amount)
+                        .build()))
                 .build();
 
-        EnvelopeContent content = EnvelopeContent.builder()
-                .addEntity(eCheck)
+        Libralink.EnvelopeContent content = EnvelopeContentBuilder.newBuilder()
+                .addEntity(Any.pack(eCheck))
                 .build();
 
-        Envelope envelope = Envelope.builder()
+        Libralink.Envelope envelope = EnvelopeBuilder.newBuilder()
                 .addContent(content)
                 .addId(UUID.fromString("e2a3eecd-b99e-4c8f-b3c9-01aacb73a1a4"))
                 .build();

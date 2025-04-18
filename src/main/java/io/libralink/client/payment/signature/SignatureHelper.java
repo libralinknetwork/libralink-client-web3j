@@ -1,12 +1,10 @@
 package io.libralink.client.payment.signature;
 
-import io.libralink.client.payment.protocol.SignatureAlgorithm;
-import io.libralink.client.payment.protocol.envelope.Envelope;
-import io.libralink.client.payment.protocol.envelope.EnvelopeContent;
-import io.libralink.client.payment.protocol.envelope.SignatureReason;
-import io.libralink.client.payment.protocol.processing.ProcessingDetails;
+import com.google.protobuf.Any;
+import io.libralink.client.payment.proto.Libralink;
+import io.libralink.client.payment.proto.builder.envelope.EnvelopeBuilder;
+import io.libralink.client.payment.proto.builder.envelope.EnvelopeContentBuilder;
 import io.libralink.client.payment.util.EncryptionUtils;
-import io.libralink.client.payment.util.JsonUtils;
 import org.web3j.crypto.Credentials;
 
 import static io.libralink.client.payment.util.EncryptionUtils.recover;
@@ -15,42 +13,46 @@ public final class SignatureHelper {
 
     private SignatureHelper() {}
 
-    public static Envelope sign(Envelope envelope, Credentials credentials, SignatureReason reason) throws Exception {
-        EnvelopeContent content = envelope.getContent();
-        EnvelopeContent signedContent = EnvelopeContent.builder(content)
+    public static Libralink.Envelope sign(Libralink.Envelope envelope, Credentials credentials, Libralink.SignatureReason reason) throws Exception {
+        Libralink.EnvelopeContent content = envelope.getContent();
+        Libralink.EnvelopeContent signedContent = EnvelopeContentBuilder.newBuilder(content)
                 .addSigReason(reason)
                 .addAddress(credentials.getAddress())
-                .addAlgorithm(SignatureAlgorithm.SECP256K1)
+                .addAlgorithm("SECP256K1")
                 .build();
 
-        String json = JsonUtils.toJson(signedContent);
-        String sig = EncryptionUtils.sign(json, credentials);
+        String sig = EncryptionUtils.sign(signedContent.toByteArray(), credentials);
 
-        return Envelope.builder(envelope)
+        return EnvelopeBuilder.newBuilder(envelope)
             .addSig(sig)
             .addContent(signedContent)
                 .build();
     }
 
-    public static boolean verify(Envelope envelope) throws Exception {
-        if (envelope == null || envelope.getContent() == null) {
+    public static boolean verify(Libralink.Envelope envelope) throws Exception {
+        if (envelope == null) {
             return false;
         }
 
-        EnvelopeContent content = envelope.getContent();
+        Libralink.EnvelopeContent content = envelope.getContent();
         String sig = envelope.getSig();
         String pub = content.getAddress();
-        String json = JsonUtils.toJson(content);
 
-        boolean isValid = recover(json, sig, pub);
+        boolean isValid = recover(content.toByteArray(), sig, pub);
 
-        if (ProcessingDetails.class.equals(content.getEntity().getClass())) {
-            ProcessingDetails details = (ProcessingDetails) content.getEntity();
+        Any entity = content.getEntity();
+        if (entity.is(Libralink.ProcessingFee.class)) {
+            Libralink.ProcessingFee details = entity.unpack(Libralink.ProcessingFee.class);
             isValid = isValid && verify(details.getEnvelope());
         }
 
-        if (Envelope.class.equals(content.getEntity().getClass())) {
-            isValid = isValid && verify((Envelope) content.getEntity());
+        if (entity.is(Libralink.SurchargeRequest.class)) {
+            Libralink.SurchargeRequest surcharge = entity.unpack(Libralink.SurchargeRequest.class);
+            isValid = isValid && verify(surcharge.getEnvelope());
+        }
+
+        if (entity.is(Libralink.Envelope.class)) {
+            isValid = isValid && verify(entity.unpack(Libralink.Envelope.class));
         }
 
         return isValid;

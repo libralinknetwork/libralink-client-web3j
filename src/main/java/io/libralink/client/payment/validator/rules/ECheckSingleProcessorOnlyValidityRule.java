@@ -1,8 +1,7 @@
 package io.libralink.client.payment.validator.rules;
 
-import io.libralink.client.payment.protocol.echeck.ECheck;
-import io.libralink.client.payment.protocol.envelope.Envelope;
-import io.libralink.client.payment.protocol.processing.ProcessingDetails;
+import com.google.protobuf.InvalidProtocolBufferException;
+import io.libralink.client.payment.proto.Libralink;
 import io.libralink.client.payment.util.EnvelopeUtils;
 import io.libralink.client.payment.validator.EntityValidationRule;
 import org.slf4j.Logger;
@@ -21,10 +20,10 @@ public class ECheckSingleProcessorOnlyValidityRule implements EntityValidationRu
     }
 
     @Override
-    public boolean isValid(Envelope envelope) {
+    public boolean isValid(Libralink.Envelope envelope) throws Exception {
 
-        String payerProcessor = EnvelopeUtils.extractEntityAttribute(envelope, ECheck.class, ECheck::getPayerProcessor).orElse(null);
-        String payeeProcessor = EnvelopeUtils.extractEntityAttribute(envelope, ECheck.class, ECheck::getPayeeProcessor).orElse(null);
+        String payerProcessor = EnvelopeUtils.extractEntityAttribute(envelope, Libralink.ECheck.class, Libralink.ECheck::getFromProc).orElse(null);
+        String payeeProcessor = EnvelopeUtils.extractEntityAttribute(envelope, Libralink.ECheck.class, Libralink.ECheck::getToProc).orElse(null);
 
         /* If Payer & Payee processors are different */
         if (payeeProcessor == null || !payeeProcessor.equals(payerProcessor)) {
@@ -32,9 +31,16 @@ public class ECheckSingleProcessorOnlyValidityRule implements EntityValidationRu
         }
 
         /* If single Processor envelope mentions intermediary */
-        List<Envelope> processorEnvelopes = EnvelopeUtils.findAllProcessingDetailsEnvelopes(envelope);
-        Optional<Envelope> nonEmptyIntermediaryEnvelopeOption = processorEnvelopes.stream().filter(env -> ((ProcessingDetails) env.getContent().getEntity()).getIntermediary() != null)
-            .findFirst();
+        List<Libralink.Envelope> processorEnvelopes = EnvelopeUtils.findAllProcessingDetailsEnvelopes(envelope);
+        Optional<Libralink.Envelope> nonEmptyIntermediaryEnvelopeOption = processorEnvelopes.stream().filter(env -> {
+                try {
+                    String intermediary = (env.getContent().getEntity().unpack(Libralink.ProcessingFee.class)).getIntermediary();
+                    return intermediary != null && !intermediary.isEmpty();
+                } catch (InvalidProtocolBufferException e) {
+                    return false;
+                }
+            })
+        .findFirst();
 
         return nonEmptyIntermediaryEnvelopeOption.isEmpty();
     }

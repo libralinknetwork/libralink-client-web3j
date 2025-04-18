@@ -1,10 +1,10 @@
 package io.libralink.client.payment.validator;
 
-import io.libralink.client.payment.protocol.envelope.Envelope;
+import io.libralink.client.payment.proto.Libralink;
 
 public interface EntityValidationRule {
 
     String name();
 
-    boolean isValid(Envelope envelope);
+    boolean isValid(Libralink.Envelope envelope) throws Exception;
 }

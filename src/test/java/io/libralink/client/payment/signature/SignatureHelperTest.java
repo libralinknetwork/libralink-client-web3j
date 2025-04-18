@@ -1,11 +1,11 @@
 package io.libralink.client.payment.signature;
 
-import io.libralink.client.payment.protocol.echeck.DepositApproval;
-import io.libralink.client.payment.protocol.envelope.Envelope;
-import io.libralink.client.payment.protocol.envelope.EnvelopeContent;
-import io.libralink.client.payment.protocol.envelope.SignatureReason;
-import io.libralink.client.payment.protocol.processing.ProcessingFee;
-import io.libralink.client.payment.protocol.processing.ProcessingDetails;
+import com.google.protobuf.Any;
+import io.libralink.client.payment.proto.Libralink;
+import io.libralink.client.payment.proto.builder.echeck.PaymentRequestBuilder;
+import io.libralink.client.payment.proto.builder.envelope.EnvelopeBuilder;
+import io.libralink.client.payment.proto.builder.envelope.EnvelopeContentBuilder;
+import io.libralink.client.payment.proto.builder.fee.ProcessingFeeBuilder;
 import org.junit.Test;
 import org.web3j.crypto.Credentials;
 
@@ -19,37 +19,35 @@ public class SignatureHelperTest {
     final String PARTY_PK = "19dc73eee8a41b5ea3d361c9c3f5b57af96835b242fc223e45f2b79f9194d4f9";
     final Credentials partyCred = Credentials.create(PARTY_PK);
 
-    final DepositApproval approval = DepositApproval.builder()
+    final Libralink.PaymentRequest approval = PaymentRequestBuilder.newBuilder()
             .addCreatedAt(1743526954033L)
-            .addCheckId(UUID.fromString("4f775a54-f028-4632-a3ba-10f85905b148"))
-            .addPayer("0x12345")
-            .addPayee("0x12346")
+            .addCorrelationId(UUID.fromString("4f775a54-f028-4632-a3ba-10f85905b148"))
+            .addFrom("0x12345")
+            .addFromProc("0x12345")
+            .addTo("0x12346")
+            .addToProc("0x12346")
+            .addCurrency("USDC")
             .addAmount(BigDecimal.valueOf(100))
-            .addId(UUID.fromString("8a29d3c8-4b8e-43dc-8542-9abd6231de7a"))
             .build();
 
-    EnvelopeContent approvalEnvelopeContent = EnvelopeContent.builder()
-            .addEntity(approval)
+    Libralink.EnvelopeContent approvalEnvelopeContent = EnvelopeContentBuilder.newBuilder()
+            .addEntity(Any.pack(approval))
             .build();
 
-    Envelope signedApprovalEnvelope = SignatureHelper.sign(
-        Envelope.builder()
+    Libralink.Envelope signedApprovalEnvelope = SignatureHelper.sign(
+        EnvelopeBuilder.newBuilder()
             .addContent(approvalEnvelopeContent)
             .addId(UUID.randomUUID())
             .build(),
         partyCred,
-        SignatureReason.CONFIRM
+        Libralink.SignatureReason.CONFIRM
     );
 
-    final ProcessingFee fee = ProcessingFee.builder()
+    final Libralink.ProcessingFee content = ProcessingFeeBuilder.newBuilder()
             .addFeeType("flat")
             .addAmount(BigDecimal.valueOf(2.5))
-            .build();
-    final ProcessingDetails content = ProcessingDetails.builder()
-            .addFee(fee)
             .addIntermediary("intermediary_1")
             .addEnvelope(signedApprovalEnvelope)
-            .addId(UUID.fromString("a01f2543-f727-4c41-9684-ed27bcfc7790"))
             .build();
 
     public SignatureHelperTest() throws Exception {
@@ -58,18 +56,18 @@ public class SignatureHelperTest {
     @Test
     public void test_party_header_content_valid_signature() throws Exception {
 
-        EnvelopeContent envelopeContent = EnvelopeContent.builder()
-                .addEntity(content)
+        Libralink.EnvelopeContent envelopeContent = EnvelopeContentBuilder.newBuilder()
+                .addEntity(Any.pack(content))
                 .addAddress(partyCred.getAddress())
-                .addSigReason(SignatureReason.CONFIRM)
+                .addSigReason(Libralink.SignatureReason.CONFIRM)
                 .build();
 
-        Envelope envelope = Envelope.builder()
+        Libralink.Envelope envelope = EnvelopeBuilder.newBuilder()
                 .addContent(envelopeContent)
                 .addId(UUID.randomUUID())
                 .build();
 
-        final Envelope signedEnvelope = SignatureHelper.sign(envelope, partyCred, SignatureReason.CONFIRM);
+        final Libralink.Envelope signedEnvelope = SignatureHelper.sign(envelope, partyCred, Libralink.SignatureReason.CONFIRM);
         assertNotNull(signedEnvelope.getId());
         assertNotNull(signedEnvelope.getSig());
 
@@ -80,13 +78,13 @@ public class SignatureHelperTest {
     @Test
     public void test_party_header_content_invalid_signature() throws Exception {
 
-        EnvelopeContent envelopeContent = EnvelopeContent.builder()
-                .addEntity(content)
+        Libralink.EnvelopeContent envelopeContent = EnvelopeContentBuilder.newBuilder()
+                .addEntity(Any.pack(content))
                 .addAddress("0x127cc4d943dff0a4bd6b024a96554a84e6247440")
-                .addSigReason(SignatureReason.CONFIRM)
+                .addSigReason(Libralink.SignatureReason.CONFIRM)
                 .build();
 
-        Envelope envelope = Envelope.builder()
+        Libralink.Envelope envelope = EnvelopeBuilder.newBuilder()
                 .addContent(envelopeContent)
                 .addSig("0x051267ae319cd23083c116f43e2d41966354a69e61824a2c922edde4a6df407b74e1db37f82eb5da421f7a19e80bf5bb95fbe875e4d9df186ca73f1c8d7ed65b1c")
                 .addId(UUID.randomUUID())

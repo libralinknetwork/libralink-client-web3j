@@ -1,18 +1,19 @@
 package io.libralink.client;
 
-import io.libralink.client.payment.protocol.AbstractEntity;
-import io.libralink.client.payment.protocol.echeck.ECheck;
-import io.libralink.client.payment.protocol.envelope.Envelope;
-import io.libralink.client.payment.protocol.envelope.EnvelopeContent;
-import io.libralink.client.payment.protocol.envelope.SignatureReason;
-import io.libralink.client.payment.protocol.processing.ProcessingDetails;
-import io.libralink.client.payment.protocol.processing.ProcessingFee;
+import com.google.protobuf.Any;
+import io.libralink.client.payment.proto.Libralink;
+import io.libralink.client.payment.proto.builder.echeck.ECheckBuilder;
+import io.libralink.client.payment.proto.builder.echeck.ECheckSplitBuilder;
+import io.libralink.client.payment.proto.builder.envelope.EnvelopeBuilder;
+import io.libralink.client.payment.proto.builder.envelope.EnvelopeContentBuilder;
+import io.libralink.client.payment.proto.builder.fee.ProcessingFeeBuilder;
 import io.libralink.client.payment.signature.SignatureHelper;
 import io.libralink.client.payment.util.JsonUtils;
 import org.junit.Test;
 import org.web3j.crypto.Credentials;
 
 import java.math.BigDecimal;
+import java.util.List;
 import java.util.UUID;
 
 import static org.junit.Assert.assertEquals;
@@ -36,29 +37,34 @@ public class ToJsonSignatureTest {
 
         /* Payer composes E-Check and sends to Processor */
 
-        final ECheck eCheck = ECheck.builder()
-            .addPayer(PAYER_CRED.getAddress())
-            .addPayerProcessor(PROCESSOR_CRED.getAddress())
-            .addPayee(PAYEE_CRED.getAddress())
-            .addPayeeProcessor(PROCESSOR_CRED.getAddress())
+        final Libralink.ECheck eCheck = ECheckBuilder.newBuilder()
+            .addCorrelationId(UUID.fromString("9d451114-ed78-4c25-8893-81b3f83c16e8"))
+            .addFrom(PAYER_CRED.getAddress())
+            .addFromProc(PROCESSOR_CRED.getAddress())
+            .addTo(PAYEE_CRED.getAddress())
+            .addToProc(PROCESSOR_CRED.getAddress())
             .addCurrency("USDC")
             .addCreatedAt(1743526954033L)
             .addExpiresAt(2743526954133L)
             .addNote("Online courses payment, order #123")
             .addFaceAmount(BigDecimal.valueOf(150))
-            .addId(UUID.fromString("bfcb823c-4506-4e17-b715-59de993d15fe"))
+            .addSplits(List.of(ECheckSplitBuilder.newBuilder()
+                .addTo(PAYEE_CRED.getAddress())
+                .addToProc(PROCESSOR_CRED.getAddress())
+                .addAmount(BigDecimal.valueOf(150))
+                .build()))
             .build();
 
-        EnvelopeContent eCheckContent = EnvelopeContent.builder()
-                .addEntity(eCheck)
+        Libralink.EnvelopeContent eCheckContent = EnvelopeContentBuilder.newBuilder()
+                .addEntity(Any.pack(eCheck))
             .build();
 
-        AbstractEntity.AbstractEntityBuilder eCheckEnvelopeBuilder = Envelope.builder()
+        EnvelopeBuilder eCheckEnvelopeBuilder = EnvelopeBuilder.newBuilder()
                 .addContent(eCheckContent)
                 .addId(UUID.fromString("19360ffc-dd19-4294-99ed-d0858082b48d"));
 
-        Envelope envelope = eCheckEnvelopeBuilder.build();
-        Envelope signedEnvelope = SignatureHelper.sign(envelope, PAYER_CRED, SignatureReason.IDENTITY);
+        Libralink.Envelope envelope = eCheckEnvelopeBuilder.build();
+        Libralink.Envelope signedEnvelope = SignatureHelper.sign(envelope, PAYER_CRED, Libralink.SignatureReason.IDENTITY);
         System.out.println(signedEnvelope.getSig());
 
         String json = JsonUtils.toJson(signedEnvelope);
@@ -69,54 +75,51 @@ public class ToJsonSignatureTest {
 
         /* Processor verifies, adds fee and locks them by the Signature */
 
-        ProcessingDetails details = ProcessingDetails.builder()
+        Libralink.ProcessingFee details = ProcessingFeeBuilder.newBuilder()
                 .addEnvelope(signedEnvelope)
                 .addIntermediary(null)
-                .addFee(ProcessingFee.builder()
-                        .addAmount(BigDecimal.valueOf(1.5))
-                        .addFeeType("percent")
-                        .build())
-                .addId(UUID.fromString("9f3b5bde-b5fb-43b5-90b2-e32238d460be"))
+                .addAmount(BigDecimal.valueOf(1.5))
+                .addFeeType("percent")
                 .build();
 
-        EnvelopeContent detailsEnvelopeContent = EnvelopeContent.builder()
-                .addEntity(details)
+        Libralink.EnvelopeContent detailsEnvelopeContent = EnvelopeContentBuilder.newBuilder()
+                .addEntity(Any.pack(details))
                 .build();
 
-        Envelope detailsEnvelope = Envelope.builder()
+        Libralink.Envelope detailsEnvelope = EnvelopeBuilder.newBuilder()
                 .addContent(detailsEnvelopeContent)
                 .addId(UUID.fromString("a3bea111-713d-4972-8a50-8a33a8ea9cf5"))
                 .build();
 
-        Envelope detailsEnvelopeSigned = SignatureHelper.sign(detailsEnvelope, PROCESSOR_CRED, SignatureReason.FEE_LOCK);
+        Libralink.Envelope detailsEnvelopeSigned = SignatureHelper.sign(detailsEnvelope, PROCESSOR_CRED, Libralink.SignatureReason.FEE_LOCK);
 
         /* Payer agrees with Fee and adds confirmation signature */
 
-        EnvelopeContent payerConfirmContent = EnvelopeContent.builder()
-                .addEntity(detailsEnvelopeSigned)
+        Libralink.EnvelopeContent payerConfirmContent = EnvelopeContentBuilder.newBuilder()
+                .addEntity(Any.pack(detailsEnvelopeSigned))
                 .build();
 
-        Envelope payerConfirmEnvelope = Envelope.builder()
+        Libralink.Envelope payerConfirmEnvelope = EnvelopeBuilder.newBuilder()
                 .addContent(payerConfirmContent)
                 .addId(UUID.fromString("fe19bd71-b2fa-4ad2-9c3c-d5e01a1908f2"))
                 .build();
 
-        Envelope payerConfirmEnvelopeSigned = SignatureHelper.sign(payerConfirmEnvelope, PAYER_CRED, SignatureReason.CONFIRM);
+        Libralink.Envelope payerConfirmEnvelopeSigned = SignatureHelper.sign(payerConfirmEnvelope, PAYER_CRED, Libralink.SignatureReason.CONFIRM);
 
         /* Processor blocks Payer funds and adds confirmation signature */
 
-        EnvelopeContent processorConfirmContent = EnvelopeContent.builder()
-                .addEntity(payerConfirmEnvelopeSigned)
+        Libralink.EnvelopeContent processorConfirmContent = EnvelopeContentBuilder.newBuilder()
+                .addEntity(Any.pack(payerConfirmEnvelopeSigned))
                 .build();
 
-        Envelope processorConfirmEnvelope = Envelope.builder()
+        Libralink.Envelope processorConfirmEnvelope = EnvelopeBuilder.newBuilder()
                 .addContent(processorConfirmContent)
                 .addId(UUID.fromString("44d00856-57ff-482d-b7fc-2762e88dccdb"))
                 .build();
 
-        Envelope processorConfirmEnvelopeSigned = SignatureHelper.sign(processorConfirmEnvelope, PROCESSOR_CRED, SignatureReason.CONFIRM);
+        Libralink.Envelope processorConfirmEnvelopeSigned = SignatureHelper.sign(processorConfirmEnvelope, PROCESSOR_CRED, Libralink.SignatureReason.CONFIRM);
         System.out.println(JsonUtils.toJson(processorConfirmEnvelopeSigned));
 
-        assertEquals("0x14fe5b2aa54d996c3c5f9d0589de3d74f440f8e69640a8c9d6f8dbf65daf60036bfa2e3103da8b8f6595a2635a3cf7612dde3f5ebbe254f702eb4acab6effe631b", processorConfirmEnvelopeSigned.getSig());
+        assertEquals("0x906de8273c3da4af8518b6b44ff116bc27167faa05e1e7294b70083985eccbae3cc7dce198fe95eb287a40e7e31f7e75c3acf39e039201351015bebf7197d9ec1b", processorConfirmEnvelopeSigned.getSig());
     }
 }

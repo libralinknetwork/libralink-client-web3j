@@ -1,6 +1,6 @@
 package io.libralink.client.payment.validator.rules;
 
-import io.libralink.client.payment.protocol.envelope.Envelope;
+import io.libralink.client.payment.proto.Libralink;
 import io.libralink.client.payment.validator.EntityValidationRule;
 
 public class ECheckExpirationValidityRule implements EntityValidationRule {
@@ -11,7 +11,7 @@ public class ECheckExpirationValidityRule implements EntityValidationRule {
     }
 
     @Override
-    public boolean isValid(Envelope envelope) {
+    public boolean isValid(Libralink.Envelope envelope) {
 
         throw new RuntimeException("Not Implemented");
     }

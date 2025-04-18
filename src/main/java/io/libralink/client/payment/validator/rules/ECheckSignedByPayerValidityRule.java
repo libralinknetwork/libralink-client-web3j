@@ -1,7 +1,6 @@
 package io.libralink.client.payment.validator.rules;
 
-import io.libralink.client.payment.protocol.echeck.ECheck;
-import io.libralink.client.payment.protocol.envelope.Envelope;
+import io.libralink.client.payment.proto.Libralink;
 import io.libralink.client.payment.signature.SignatureHelper;
 import io.libralink.client.payment.util.EnvelopeUtils;
 import io.libralink.client.payment.validator.EntityValidationRule;
@@ -20,21 +19,21 @@ public class ECheckSignedByPayerValidityRule implements EntityValidationRule {
     private static final Logger LOG = LoggerFactory.getLogger(ECheckSignedByPayerValidityRule.class);
 
     @Override
-    public boolean isValid(Envelope envelope) {
+    public boolean isValid(Libralink.Envelope envelope) throws Exception {
 
-        Optional<String> payerOptional = EnvelopeUtils.extractEntityAttribute(envelope, ECheck.class, ECheck::getPayer);
+        Optional<String> payerOptional = EnvelopeUtils.extractEntityAttribute(envelope, Libralink.ECheck.class, Libralink.ECheck::getFrom);
         if (payerOptional.isEmpty()) {
             return Boolean.FALSE;
         }
 
         String payer = payerOptional.get();
-        Optional<Envelope> payerEnvelopeOptional = EnvelopeUtils.findSignedEnvelopeByPub(envelope, payer);
+        Optional<Libralink.Envelope> payerEnvelopeOptional = EnvelopeUtils.findSignedEnvelopeByPub(envelope, payer);
 
         if (payerEnvelopeOptional.isEmpty()) {
             return Boolean.FALSE;
         }
 
-        Envelope payerEnvelope = payerEnvelopeOptional.get();
+        Libralink.Envelope payerEnvelope = payerEnvelopeOptional.get();
 
         try {
             return SignatureHelper.verify(payerEnvelope);

@@ -15,8 +15,8 @@ public final class EncryptionUtils {
         return Credentials.create(privateKey);
     }
 
-    public static String sign(String message, Credentials credentials) {
-        Sign.SignatureData sigData = Sign.signPrefixedMessage(message.getBytes(), credentials.getEcKeyPair());
+    public static String sign(byte[] message, Credentials credentials) {
+        Sign.SignatureData sigData = Sign.signPrefixedMessage(message, credentials.getEcKeyPair());
         String r = Numeric.toHexString(sigData.getR());
         String s = Numeric.toHexString(sigData.getS()).substring(2);
         String v = Numeric.toHexString(sigData.getV()).substring(2);
@@ -25,12 +25,12 @@ public final class EncryptionUtils {
 
     /**
      * Given a message, the signature of this message and an Ethereum address, checks if the address is the signer
-     * @param textMessage The message that was signed, in plain text.
+     * @param message The message that was signed.
      * @param hexStringSignature The signature, in hexadecimal string
      * @param hexStringEthAddress The Ethereum address, in hexadecimal string
      * @return true if Ethereum address is the signer of message that creates the signature
      */
-    public static boolean recover(String textMessage, String hexStringSignature, String hexStringEthAddress) throws Exception {
+    public static boolean recover(byte[] message, String hexStringSignature, String hexStringEthAddress) throws Exception {
 
         if(hexStringSignature.length() != 132 || !hexStringSignature.startsWith("0x")) {
             throw new Exception("Signature must be an hexadecimal string starting with 0x + 130 characters");
@@ -54,7 +54,7 @@ public final class EncryptionUtils {
         // Then, message will be wrapped as follows:
         // 1. message = "\u0019Ethereum Signed Message:\n" + message.length + message
         // 2. message = sha3(message)
-        BigInteger pubKey = Sign.signedPrefixedMessageToKey(textMessage.getBytes(), signatureData);
+        BigInteger pubKey = Sign.signedPrefixedMessageToKey(message, signatureData);
 
         // Then retrieve the Ethereum address derived from the public key
         String recover = Keys.getAddress(pubKey);
