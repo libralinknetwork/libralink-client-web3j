@@ -1,6 +1,5 @@
 package io.libralink.client.payment.signature;
 
-import com.google.protobuf.Any;
 import io.libralink.client.payment.proto.Libralink;
 import io.libralink.client.payment.proto.builder.echeck.PaymentRequestBuilder;
 import io.libralink.client.payment.proto.builder.envelope.EnvelopeBuilder;
@@ -31,7 +30,7 @@ public class SignatureHelperTest {
             .build();
 
     Libralink.EnvelopeContent approvalEnvelopeContent = EnvelopeContentBuilder.newBuilder()
-            .addEntity(Any.pack(approval))
+            .addPaymentRequest(approval)
             .build();
 
     Libralink.Envelope signedApprovalEnvelope = SignatureHelper.sign(
@@ -43,7 +42,7 @@ public class SignatureHelperTest {
         Libralink.SignatureReason.CONFIRM
     );
 
-    final Libralink.ProcessingFee content = ProcessingFeeBuilder.newBuilder()
+    final Libralink.ProcessingFee processingFee = ProcessingFeeBuilder.newBuilder()
             .addFeeType("flat")
             .addAmount(BigDecimal.valueOf(2.5))
             .addIntermediary("intermediary_1")
@@ -57,7 +56,7 @@ public class SignatureHelperTest {
     public void test_party_header_content_valid_signature() throws Exception {
 
         Libralink.EnvelopeContent envelopeContent = EnvelopeContentBuilder.newBuilder()
-                .addEntity(Any.pack(content))
+                .addProcessingFee(processingFee)
                 .addAddress(partyCred.getAddress())
                 .addSigReason(Libralink.SignatureReason.CONFIRM)
                 .build();
@@ -79,7 +78,7 @@ public class SignatureHelperTest {
     public void test_party_header_content_invalid_signature() throws Exception {
 
         Libralink.EnvelopeContent envelopeContent = EnvelopeContentBuilder.newBuilder()
-                .addEntity(Any.pack(content))
+                .addProcessingFee(processingFee)
                 .addAddress("0x127cc4d943dff0a4bd6b024a96554a84e6247440")
                 .addSigReason(Libralink.SignatureReason.CONFIRM)
                 .build();

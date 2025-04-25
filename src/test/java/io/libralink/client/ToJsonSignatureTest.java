@@ -1,6 +1,5 @@
 package io.libralink.client;
 
-import com.google.protobuf.Any;
 import io.libralink.client.payment.proto.Libralink;
 import io.libralink.client.payment.proto.builder.echeck.ECheckBuilder;
 import io.libralink.client.payment.proto.builder.echeck.ECheckSplitBuilder;
@@ -56,7 +55,7 @@ public class ToJsonSignatureTest {
             .build();
 
         Libralink.EnvelopeContent eCheckContent = EnvelopeContentBuilder.newBuilder()
-                .addEntity(Any.pack(eCheck))
+                .addECheck(eCheck)
             .build();
 
         EnvelopeBuilder eCheckEnvelopeBuilder = EnvelopeBuilder.newBuilder()
@@ -75,7 +74,7 @@ public class ToJsonSignatureTest {
 
         /* Processor verifies, adds fee and locks them by the Signature */
 
-        Libralink.ProcessingFee details = ProcessingFeeBuilder.newBuilder()
+        Libralink.ProcessingFee processingFee = ProcessingFeeBuilder.newBuilder()
                 .addEnvelope(signedEnvelope)
                 .addIntermediary(null)
                 .addAmount(BigDecimal.valueOf(1.5))
@@ -83,7 +82,7 @@ public class ToJsonSignatureTest {
                 .build();
 
         Libralink.EnvelopeContent detailsEnvelopeContent = EnvelopeContentBuilder.newBuilder()
-                .addEntity(Any.pack(details))
+                .addProcessingFee(processingFee)
                 .build();
 
         Libralink.Envelope detailsEnvelope = EnvelopeBuilder.newBuilder()
@@ -96,7 +95,7 @@ public class ToJsonSignatureTest {
         /* Payer agrees with Fee and adds confirmation signature */
 
         Libralink.EnvelopeContent payerConfirmContent = EnvelopeContentBuilder.newBuilder()
-                .addEntity(Any.pack(detailsEnvelopeSigned))
+                .addEnvelope(detailsEnvelopeSigned)
                 .build();
 
         Libralink.Envelope payerConfirmEnvelope = EnvelopeBuilder.newBuilder()
@@ -109,7 +108,7 @@ public class ToJsonSignatureTest {
         /* Processor blocks Payer funds and adds confirmation signature */
 
         Libralink.EnvelopeContent processorConfirmContent = EnvelopeContentBuilder.newBuilder()
-                .addEntity(Any.pack(payerConfirmEnvelopeSigned))
+                .addEnvelope(payerConfirmEnvelopeSigned)
                 .build();
 
         Libralink.Envelope processorConfirmEnvelope = EnvelopeBuilder.newBuilder()
@@ -120,6 +119,6 @@ public class ToJsonSignatureTest {
         Libralink.Envelope processorConfirmEnvelopeSigned = SignatureHelper.sign(processorConfirmEnvelope, PROCESSOR_CRED, Libralink.SignatureReason.CONFIRM);
         System.out.println(JsonUtils.toJson(processorConfirmEnvelopeSigned));
 
-        assertEquals("0x906de8273c3da4af8518b6b44ff116bc27167faa05e1e7294b70083985eccbae3cc7dce198fe95eb287a40e7e31f7e75c3acf39e039201351015bebf7197d9ec1b", processorConfirmEnvelopeSigned.getSig());
+        assertEquals("0xfdf36f8159ed00361deb498a55147aa5f04c7d8f7a9c1c7c636cf494b75c7b43797528f3b93e4fc3ffa81455d9a696747c73dcfca0ff2b9e7cdc75449e0811ad1c", processorConfirmEnvelopeSigned.getSig());
     }
 }

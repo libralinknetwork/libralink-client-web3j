@@ -1,6 +1,5 @@
 package io.libralink.client.payment.validator.rules;
 
-import com.google.protobuf.Any;
 import io.libralink.client.payment.proto.Libralink;
 import io.libralink.client.payment.proto.builder.echeck.ECheckBuilder;
 import io.libralink.client.payment.proto.builder.echeck.ECheckSplitBuilder;
@@ -49,7 +48,7 @@ public class ECheckSignedByPayerPartyValidityRuleTest {
         Libralink.ECheck eCheck = eCheckBuilder.build();
 
         Libralink.EnvelopeContent content = EnvelopeContentBuilder.newBuilder()
-                .addEntity(Any.pack(eCheck))
+                .addECheck(eCheck)
                 .build();
 
         Libralink.Envelope envelope = EnvelopeBuilder.newBuilder()
@@ -67,7 +66,7 @@ public class ECheckSignedByPayerPartyValidityRuleTest {
         Libralink.ECheck eCheck = eCheckBuilder.build();
 
         Libralink.EnvelopeContent innerContent = EnvelopeContentBuilder.newBuilder()
-                .addEntity(Any.pack(eCheck))
+                .addECheck(eCheck)
                 .build();
 
         Libralink.Envelope innerEnvelope = EnvelopeBuilder.newBuilder()
@@ -78,7 +77,7 @@ public class ECheckSignedByPayerPartyValidityRuleTest {
         Libralink.Envelope signedEnvelope = SignatureHelper.sign(innerEnvelope, payerCred, Libralink.SignatureReason.CONFIRM);
 
         Libralink.EnvelopeContent outerContent = EnvelopeContentBuilder.newBuilder()
-                .addEntity(Any.pack(signedEnvelope))
+                .addEnvelope(signedEnvelope)
                 .build();
 
         Libralink.Envelope outerNoSignatureEnvelope = EnvelopeBuilder.newBuilder()
@@ -95,7 +94,7 @@ public class ECheckSignedByPayerPartyValidityRuleTest {
         Libralink.ECheck eCheck = eCheckBuilder.build();
 
         Libralink.EnvelopeContent content = EnvelopeContentBuilder.newBuilder()
-                .addEntity(Any.pack(eCheck))
+                .addECheck(eCheck)
                 .build();
 
         Libralink.Envelope envelope = EnvelopeBuilder.newBuilder()

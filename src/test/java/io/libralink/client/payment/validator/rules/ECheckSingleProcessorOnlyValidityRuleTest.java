@@ -1,6 +1,5 @@
 package io.libralink.client.payment.validator.rules;
 
-import com.google.protobuf.Any;
 import io.libralink.client.payment.proto.Libralink;
 import io.libralink.client.payment.proto.builder.echeck.ECheckBuilder;
 import io.libralink.client.payment.proto.builder.echeck.ECheckSplitBuilder;
@@ -50,7 +49,7 @@ public class ECheckSingleProcessorOnlyValidityRuleTest {
     public void test_multiple_processors() throws Exception {
 
         Libralink.EnvelopeContent envelopeContent = EnvelopeContentBuilder.newBuilder()
-                .addEntity(Any.pack(eCheckBuilder.build()))
+                .addECheck(eCheckBuilder.build())
                 .addAddress("fake")
                 .addSigReason(Libralink.SignatureReason.CONFIRM)
                 .build();
@@ -67,7 +66,7 @@ public class ECheckSingleProcessorOnlyValidityRuleTest {
     public void test_single_processor_with_intermediary() throws Exception {
 
         Libralink.EnvelopeContent envelopeContent = EnvelopeContentBuilder.newBuilder()
-                .addEntity(Any.pack(eCheckBuilder.addToProc("fake").build()))
+                .addECheck(eCheckBuilder.addToProc("fake").build())
                 .addAddress("fake")
                 .addSigReason(Libralink.SignatureReason.CONFIRM)
                 .build();
@@ -77,9 +76,9 @@ public class ECheckSingleProcessorOnlyValidityRuleTest {
                 .addContent(envelopeContent)
                 .build();
 
-        Libralink.ProcessingFee processingDetails = feeBuilder.addEnvelope(eCheckEnvelope).build();
+        Libralink.ProcessingFee processingFee = feeBuilder.addEnvelope(eCheckEnvelope).build();
         Libralink.EnvelopeContent processingDetailsContent = EnvelopeContentBuilder.newBuilder()
-                .addEntity(Any.pack(processingDetails))
+                .addProcessingFee(processingFee)
                 .addAddress("fake")
                 .addSigReason(Libralink.SignatureReason.CONFIRM)
                 .build();
@@ -97,7 +96,7 @@ public class ECheckSingleProcessorOnlyValidityRuleTest {
     public void test_single_processor_no_intermediary() throws Exception {
 
         Libralink.EnvelopeContent envelopeContent = EnvelopeContentBuilder.newBuilder()
-                .addEntity(Any.pack(eCheckBuilder.addToProc("fake").build()))
+                .addECheck(eCheckBuilder.addToProc("fake").build())
                 .addAddress("fake")
                 .addSigReason(Libralink.SignatureReason.CONFIRM)
                 .build();
@@ -107,9 +106,9 @@ public class ECheckSingleProcessorOnlyValidityRuleTest {
                 .addContent(envelopeContent)
                 .build();
 
-        Libralink.ProcessingFee processingDetails = feeBuilderNoIntermediary.addEnvelope(eCheckEnvelope).build();
+        Libralink.ProcessingFee processingFee = feeBuilderNoIntermediary.addEnvelope(eCheckEnvelope).build();
         Libralink.EnvelopeContent processingDetailsContent = EnvelopeContentBuilder.newBuilder()
-                .addEntity(Any.pack(processingDetails))
+                .addProcessingFee(processingFee)
                 .addAddress("fake")
                 .addSigReason(Libralink.SignatureReason.CONFIRM)
                 .build();

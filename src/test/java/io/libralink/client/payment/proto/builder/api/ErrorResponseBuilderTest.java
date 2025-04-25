@@ -1,6 +1,5 @@
 package io.libralink.client.payment.proto.builder.api;
 
-import com.google.protobuf.Any;
 import com.google.protobuf.InvalidProtocolBufferException;
 import io.libralink.client.payment.proto.Libralink;
 import io.libralink.client.payment.proto.builder.envelope.EnvelopeBuilder;
@@ -23,7 +22,7 @@ public class ErrorResponseBuilderTest {
                 .build();
 
         Libralink.EnvelopeContent envelopeContent = EnvelopeContentBuilder.newBuilder()
-                .addEntity(Any.pack(response))
+                .addErrorResponse(response)
                 .addAddress("fake")
                 .addSigReason(Libralink.SignatureReason.NONE)
                 .build();
@@ -34,7 +33,7 @@ public class ErrorResponseBuilderTest {
                 .addId(UUID.fromString("84606adc-e558-40d4-9b6c-c7c005dae3fa"))
                 .build();
 
-        Libralink.ErrorResponse unpacked = envelope.getContent().getEntity().unpack(Libralink.ErrorResponse.class);
+        Libralink.ErrorResponse unpacked = envelope.getContent().getErrorResponse();
         assertEquals(1, unpacked.getCode());
         assertEquals("Error 1", unpacked.getMessage());
         assertEquals("84606adc-e558-40d4-9b6c-c7c005dae3fa", envelope.getId());

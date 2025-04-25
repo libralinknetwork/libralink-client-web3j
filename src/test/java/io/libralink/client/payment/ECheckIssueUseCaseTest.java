@@ -1,6 +1,5 @@
 package io.libralink.client.payment;
 
-import com.google.protobuf.Any;
 import io.libralink.client.payment.proto.Libralink;
 import io.libralink.client.payment.proto.builder.echeck.ECheckBuilder;
 import io.libralink.client.payment.proto.builder.echeck.ECheckSplitBuilder;
@@ -42,7 +41,7 @@ public class ECheckIssueUseCaseTest {
         Libralink.Envelope signedEnvelope = SignatureHelper.sign(unsignedEnvelope, PAYER_CRED, Libralink.SignatureReason.CONFIRM);
 
         assertNotNull(signedEnvelope.getSig());
-        assertEquals("0x143847d584b0aaee7b0fdeaec6e9e5b264093bb56413d72a484e16a81a0a3f635d1fe8c2aac5ea4884597f3b8d889dfa8ec41f24790ded21e3ba98fdc17fdcc81c", signedEnvelope.getSig());
+        assertEquals("0x67de64f6a061a27390fa84d6ea17c018f3846d9fb5189cea2ef7115205dc1f9b07bbf6c4ace932747b19f35c53ef0aefca7207a3671769d3fa90eed43359d0521b", signedEnvelope.getSig());
     }
 
     public Libralink.Envelope createECheckEnvelope(String payer, String payerProcessor, String payee, String payeeProcessor, BigDecimal amount) throws BuilderException {
@@ -68,7 +67,7 @@ public class ECheckIssueUseCaseTest {
                 .build();
 
         Libralink.EnvelopeContent content = EnvelopeContentBuilder.newBuilder()
-                .addEntity(Any.pack(eCheck))
+                .addECheck(eCheck)
                 .build();
 
         Libralink.Envelope envelope = EnvelopeBuilder.newBuilder()

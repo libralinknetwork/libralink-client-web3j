@@ -1,13 +1,15 @@
 package io.libralink.client.payment.signature;
 
-import com.google.protobuf.Any;
 import io.libralink.client.payment.proto.Libralink;
 import io.libralink.client.payment.proto.builder.envelope.EnvelopeBuilder;
 import io.libralink.client.payment.proto.builder.envelope.EnvelopeContentBuilder;
 import io.libralink.client.payment.util.EncryptionUtils;
 import org.web3j.crypto.Credentials;
 
+import java.util.Optional;
+
 import static io.libralink.client.payment.util.EncryptionUtils.recover;
+import static io.libralink.client.payment.util.EnvelopeUtils.getEnvelopeContentEntity;
 
 public final class SignatureHelper {
 
@@ -40,19 +42,22 @@ public final class SignatureHelper {
 
         boolean isValid = recover(content.toByteArray(), sig, pub);
 
-        Any entity = content.getEntity();
-        if (entity.is(Libralink.ProcessingFee.class)) {
-            Libralink.ProcessingFee details = entity.unpack(Libralink.ProcessingFee.class);
+        Optional<Libralink.Envelope> envelopeOptional = getEnvelopeContentEntity(envelope, Libralink.EnvelopeContent.EntityCase.ENVELOPE, Libralink.Envelope.class);
+        Optional<Libralink.ProcessingFee> processingFeeOptional = getEnvelopeContentEntity(envelope, Libralink.EnvelopeContent.EntityCase.PROCESSINGFEE, Libralink.ProcessingFee.class);
+        Optional<Libralink.SurchargeRequest> surchargeRequestOptional = getEnvelopeContentEntity(envelope, Libralink.EnvelopeContent.EntityCase.SURCHARGEREQUEST, Libralink.SurchargeRequest.class);
+
+        if (processingFeeOptional.isPresent()) {
+            Libralink.ProcessingFee details = processingFeeOptional.get();
             isValid = isValid && verify(details.getEnvelope());
         }
 
-        if (entity.is(Libralink.SurchargeRequest.class)) {
-            Libralink.SurchargeRequest surcharge = entity.unpack(Libralink.SurchargeRequest.class);
+        if (surchargeRequestOptional.isPresent()) {
+            Libralink.SurchargeRequest surcharge = surchargeRequestOptional.get();
             isValid = isValid && verify(surcharge.getEnvelope());
         }
 
-        if (entity.is(Libralink.Envelope.class)) {
-            isValid = isValid && verify(entity.unpack(Libralink.Envelope.class));
+        if (envelopeOptional.isPresent()) {
+            isValid = isValid && verify(envelopeOptional.get());
         }
 
         return isValid;

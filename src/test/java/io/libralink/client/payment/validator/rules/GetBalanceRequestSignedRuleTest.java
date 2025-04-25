@@ -1,6 +1,5 @@
 package io.libralink.client.payment.validator.rules;
 
-import com.google.protobuf.Any;
 import io.libralink.client.payment.proto.Libralink;
 import io.libralink.client.payment.proto.builder.api.GetBalanceRequestBuilder;
 import io.libralink.client.payment.proto.builder.envelope.EnvelopeBuilder;
@@ -33,7 +32,7 @@ public class GetBalanceRequestSignedRuleTest {
             .build();
 
     Libralink.EnvelopeContent noSignatureEnvelopeContent = EnvelopeContentBuilder.newBuilder()
-            .addEntity(Any.pack(requestCorrectAddress))
+            .addGetBalanceRequest(requestCorrectAddress)
             .build();
 
     final Libralink.Envelope noSignatureEnvelope = EnvelopeBuilder.newBuilder()
@@ -42,7 +41,7 @@ public class GetBalanceRequestSignedRuleTest {
             .build();
 
     Libralink.EnvelopeContent noSignatureInvalidAddressEnvelopeContent = EnvelopeContentBuilder.newBuilder()
-            .addEntity(Any.pack(requestInvalidAddress))
+            .addGetBalanceRequest(requestInvalidAddress)
             .build();
 
     final Libralink.Envelope noSignatureInvalidAddressEnvelope = EnvelopeBuilder.newBuilder()

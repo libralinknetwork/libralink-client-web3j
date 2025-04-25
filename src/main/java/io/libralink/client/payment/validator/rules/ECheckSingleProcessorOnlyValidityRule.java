@@ -1,6 +1,5 @@
 package io.libralink.client.payment.validator.rules;
 
-import com.google.protobuf.InvalidProtocolBufferException;
 import io.libralink.client.payment.proto.Libralink;
 import io.libralink.client.payment.util.EnvelopeUtils;
 import io.libralink.client.payment.validator.EntityValidationRule;
@@ -33,12 +32,8 @@ public class ECheckSingleProcessorOnlyValidityRule implements EntityValidationRu
         /* If single Processor envelope mentions intermediary */
         List<Libralink.Envelope> processorEnvelopes = EnvelopeUtils.findAllProcessingDetailsEnvelopes(envelope);
         Optional<Libralink.Envelope> nonEmptyIntermediaryEnvelopeOption = processorEnvelopes.stream().filter(env -> {
-                try {
-                    String intermediary = (env.getContent().getEntity().unpack(Libralink.ProcessingFee.class)).getIntermediary();
-                    return intermediary != null && !intermediary.isEmpty();
-                } catch (InvalidProtocolBufferException e) {
-                    return false;
-                }
+                String intermediary = (env.getContent().getProcessingFee()).getIntermediary();
+                return intermediary != null && !intermediary.isEmpty();
             })
         .findFirst();
 

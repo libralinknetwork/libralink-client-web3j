@@ -11,7 +11,7 @@ Check https://github.com/libralinknetwork/libralink-protocol for details
 git clone --recurse-submodules git@github.com:libralinknetwork/libralink-client-web3j.git
 ```
 
-## Pull Module 
+## Pull Sub-Module 
 ```
 git submodule update --remote --merge
 ```
@@ -23,6 +23,6 @@ git submodule update --remote --merge
 <dependency>
   <groupId>io.libralink.client</groupId>
   <artifactId>libralink-client-web3j</artifactId>
-  <version>1.7.0</version>
+  <version>1.8.0</version>
 </dependency>  
 ```

@@ -1,12 +1,13 @@
 package io.libralink.client.payment.util;
 
-import com.google.protobuf.Any;
 import com.google.protobuf.Message;
 import io.libralink.client.payment.proto.Libralink;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+
+import static io.libralink.client.payment.proto.Libralink.EnvelopeContent.EntityCase.*;
 
 public final class EnvelopeUtils {
 
@@ -30,22 +31,27 @@ public final class EnvelopeUtils {
 
     public static <T extends Message> Optional<T> findEntityByType(Libralink.Envelope envelope, Class<T> clazz) throws Exception {
 
-        Any entity = envelope.getContent().getEntity();
-        if (entity.is(clazz)) {
-            T unpacked = entity.unpack(clazz);
+        Optional<?> entityOptional = getEnvelopeContentEntity(envelope, getEntityCaseByClass(clazz), clazz);
+
+        if (entityOptional.isPresent()) {
+            T unpacked = (T) entityOptional.get();
             return Optional.of(unpacked);
         }
 
-        if (entity.is(Libralink.Envelope.class)) {
-            return findEntityByType(entity.unpack(Libralink.Envelope.class), clazz);
+        Optional<Libralink.Envelope> envelopeOptional = getEnvelopeContentEntity(envelope, Libralink.EnvelopeContent.EntityCase.ENVELOPE, Libralink.Envelope.class);
+        Optional<Libralink.ProcessingFee> processingFeeOptional = getEnvelopeContentEntity(envelope, Libralink.EnvelopeContent.EntityCase.PROCESSINGFEE, Libralink.ProcessingFee.class);
+        Optional<Libralink.SurchargeRequest> surchargeRequestOptional = getEnvelopeContentEntity(envelope, Libralink.EnvelopeContent.EntityCase.SURCHARGEREQUEST, Libralink.SurchargeRequest.class);
+
+        if (envelopeOptional.isPresent()) {
+            return findEntityByType(envelopeOptional.get(), clazz);
         }
 
-        if (entity.is(Libralink.ProcessingFee.class)) {
-            return findEntityByType(entity.unpack(Libralink.ProcessingFee.class).getEnvelope(), clazz);
+        if (processingFeeOptional.isPresent()) {
+            return findEntityByType(processingFeeOptional.get().getEnvelope(), clazz);
         }
 
-        if (entity.is(Libralink.SurchargeRequest.class)) {
-            return findEntityByType(entity.unpack(Libralink.SurchargeRequest.class).getEnvelope(), clazz);
+        if (surchargeRequestOptional.isPresent()) {
+            return findEntityByType(surchargeRequestOptional.get().getEnvelope(), clazz);
         }
 
         return Optional.empty();
@@ -64,17 +70,20 @@ public final class EnvelopeUtils {
             return Optional.of(envelope);
         }
 
-        Any entity = envelope.getContent().getEntity();
-        if (entity.is(Libralink.Envelope.class)) {
-            return findSignedEnvelopeByPub(entity.unpack(Libralink.Envelope.class), pub);
+        Optional<Libralink.Envelope> envelopeOptional = getEnvelopeContentEntity(envelope, Libralink.EnvelopeContent.EntityCase.ENVELOPE, Libralink.Envelope.class);
+        Optional<Libralink.ProcessingFee> processingFeeOptional = getEnvelopeContentEntity(envelope, Libralink.EnvelopeContent.EntityCase.PROCESSINGFEE, Libralink.ProcessingFee.class);
+        Optional<Libralink.SurchargeRequest> surchargeRequestOptional = getEnvelopeContentEntity(envelope, Libralink.EnvelopeContent.EntityCase.SURCHARGEREQUEST, Libralink.SurchargeRequest.class);
+
+        if (envelopeOptional.isPresent()) {
+            return findSignedEnvelopeByPub(envelopeOptional.get(), pub);
         }
 
-        if (entity.is(Libralink.ProcessingFee.class)) {
-            return findSignedEnvelopeByPub(entity.unpack(Libralink.ProcessingFee.class).getEnvelope(), pub);
+        if (processingFeeOptional.isPresent()) {
+            return findSignedEnvelopeByPub(processingFeeOptional.get().getEnvelope(), pub);
         }
 
-        if (entity.is(Libralink.SurchargeRequest.class)) {
-            return findSignedEnvelopeByPub(entity.unpack(Libralink.SurchargeRequest.class).getEnvelope(), pub);
+        if (surchargeRequestOptional.isPresent()) {
+            return findSignedEnvelopeByPub(surchargeRequestOptional.get().getEnvelope(), pub);
         }
 
         return Optional.empty();
@@ -86,15 +95,16 @@ public final class EnvelopeUtils {
             return new ArrayList<>();
         }
 
-        Any content = envelope.getContent().getEntity();
+        Optional<Libralink.Envelope> envelopeOptional = getEnvelopeContentEntity(envelope, Libralink.EnvelopeContent.EntityCase.ENVELOPE, Libralink.Envelope.class);
+        Optional<Libralink.ProcessingFee> processingFeeOptional = getEnvelopeContentEntity(envelope, Libralink.EnvelopeContent.EntityCase.PROCESSINGFEE, Libralink.ProcessingFee.class);
+        
+        if (envelopeOptional.isPresent()) {
+            return findAllProcessingDetailsEnvelopes(envelopeOptional.get());
 
-        if (content.is(Libralink.Envelope.class)) {
-            return findAllProcessingDetailsEnvelopes(content.unpack(Libralink.Envelope.class));
-
-        } else if (content.is(Libralink.ProcessingFee.class)) {
+        } else if (processingFeeOptional.isPresent()) {
             List<Libralink.Envelope> result = new ArrayList<>();
             result.add(envelope);
-            result.addAll(findAllProcessingDetailsEnvelopes(content.unpack(Libralink.ProcessingFee.class).getEnvelope()));
+            result.addAll(findAllProcessingDetailsEnvelopes(processingFeeOptional.get().getEnvelope()));
             return result;
 
         } else {
@@ -104,5 +114,114 @@ public final class EnvelopeUtils {
 
     public interface EntityAttributeExtractFunc<T, K> {
         K apply(T entity);
+    }
+
+    public static <T> Optional<T> getEnvelopeContentEntity(Libralink.Envelope envelope, Libralink.EnvelopeContent.EntityCase entityCase, Class<T> clazz) {
+        Libralink.EnvelopeContent content = envelope.getContent();
+        
+        if (entityCase.equals(content.getEntityCase())) {
+            switch (content.getEntityCase()) {
+                case REGISTERKEYRESPONSE:
+                    return Optional.of((T) content.getRegisterKeyResponse());
+                    
+                case REGISTERKEYREQUEST:
+                    return Optional.of((T) content.getRegisterKeyRequest());
+                    
+                case GETPROCESSORSRESPONSE:
+                    return Optional.of((T) content.getGetProcessorsResponse());
+                    
+                case GETPROCESSORSREQUEST:
+                    return Optional.of((T) content.getGetProcessorsRequest());
+                    
+                case DEPOSITRESPONSE:
+                    return Optional.of((T) content.getDepositResponse());
+                    
+                case DEPOSITREQUEST:
+                    return Optional.of((T) content.getDepositRequest());
+                    
+                case GETBALANCEREQUEST:
+                    return Optional.of((T) content.getGetBalanceRequest());
+                    
+                case GETBALANCERESPONSE:
+                    return Optional.of((T) content.getGetBalanceResponse());
+                    
+                case CHECK:
+                    return Optional.of((T) content.getCheck());
+                    
+                case SURCHARGEREQUEST:
+                    return Optional.of((T) content.getSurchargeRequest());
+                    
+                case PROCESSINGFEE:
+                    return Optional.of((T) content.getProcessingFee());                
+                
+                case ENVELOPE:
+                    return Optional.of((T) content.getEnvelope());
+
+                case PAYMENTREQUEST:
+                    return Optional.of((T) content.getPaymentRequest());
+
+                case ERRORRESPONSE:
+                    return Optional.of((T) content.getErrorResponse());
+
+                case ENTITY_NOT_SET:
+                    return Optional.empty();
+
+                default:
+                    return Optional.empty();
+            }
+        } else {
+
+            return Optional.empty();
+        }
+    }
+
+    public static Libralink.EnvelopeContent.EntityCase getEntityCaseByClass(Class<?> clazz) {
+        final String simpleClassName = clazz.getSimpleName();
+        switch (simpleClassName) {
+            case "RegisterKeyResponse":
+                return REGISTERKEYRESPONSE;
+
+            case "RegisterKeyRequest":
+                return REGISTERKEYREQUEST;
+
+            case "GetProcessorsResponse":
+                return GETPROCESSORSRESPONSE;
+
+            case "GetProcessorsRequest":
+                return GETPROCESSORSREQUEST;
+
+            case "DepositResponse":
+                return DEPOSITRESPONSE;
+
+            case "DepositRequest":
+                return DEPOSITREQUEST;
+
+            case "GetBalanceRequest":
+                return GETBALANCEREQUEST;
+
+            case "GetBalanceResponse":
+                return GETBALANCERESPONSE;
+
+            case "ECheck":
+                return CHECK;
+
+            case "SurchargeRequest":
+                return SURCHARGEREQUEST;
+
+            case "ProcessingFee":
+                return PROCESSINGFEE;
+
+            case "Envelope":
+                return ENVELOPE;
+
+            case "PaymentRequest":
+                return PAYMENTREQUEST;
+
+            case "ErrorResponse":
+                return ERRORRESPONSE;
+
+            default:
+                return null;
+        }
     }
 }

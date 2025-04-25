@@ -1,6 +1,5 @@
 package io.libralink.client.payment.proto.builder.echeck;
 
-import com.google.protobuf.Any;
 import io.libralink.client.payment.proto.Libralink;
 import io.libralink.client.payment.proto.builder.envelope.EnvelopeBuilder;
 import io.libralink.client.payment.proto.builder.envelope.EnvelopeContentBuilder;
@@ -52,7 +51,7 @@ public class PaymentRequestSurchargeBuilderTest {
     private Libralink.Envelope unsignedPaymentRequestEnvelope = EnvelopeBuilder.newBuilder()
             .addId(UUID.randomUUID())
             .addContent(EnvelopeContentBuilder.newBuilder()
-                    .addEntity(Any.pack(paymentRequest))
+                    .addPaymentRequest(paymentRequest)
                     .build())
             .build();
 
@@ -69,7 +68,7 @@ public class PaymentRequestSurchargeBuilderTest {
     private Libralink.Envelope unsignedSurchargeRequestEnvelope = EnvelopeBuilder.newBuilder()
             .addId(UUID.randomUUID())
             .addContent(EnvelopeContentBuilder.newBuilder()
-                    .addEntity(Any.pack(surchargeRequest))
+                    .addSurchargeRequest(surchargeRequest)
                     .build())
             .build();
 
@@ -79,7 +78,7 @@ public class PaymentRequestSurchargeBuilderTest {
             EnvelopeBuilder.newBuilder()
                     .addId(UUID.randomUUID())
                     .addContent(EnvelopeContentBuilder.newBuilder()
-                            .addEntity(Any.pack(signedSurchargeRequestEnvelope))
+                            .addEnvelope(signedSurchargeRequestEnvelope)
                             .build())
                 .build(),
             PAYER_CRED, Libralink.SignatureReason.CONFIRM);
@@ -112,7 +111,7 @@ public class PaymentRequestSurchargeBuilderTest {
     private Libralink.Envelope payerSignedEnvelope = SignatureHelper.sign(
             EnvelopeBuilder.newBuilder()
                     .addContent(EnvelopeContentBuilder.newBuilder()
-                            .addEntity(Any.pack(eCheck))
+                            .addECheck(eCheck)
                             .build())
                     .addId(UUID.randomUUID())
                 .build(),
@@ -121,7 +120,7 @@ public class PaymentRequestSurchargeBuilderTest {
     private Libralink.Envelope processorSignedEnvelope = SignatureHelper.sign(
             EnvelopeBuilder.newBuilder()
                     .addContent(EnvelopeContentBuilder.newBuilder()
-                            .addEntity(Any.pack(payerSignedEnvelope))
+                            .addEnvelope(payerSignedEnvelope)
                             .build())
                     .addId(UUID.randomUUID())
                     .build(),
