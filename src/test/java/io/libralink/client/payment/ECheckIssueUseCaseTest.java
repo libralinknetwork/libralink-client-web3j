@@ -41,7 +41,7 @@ public class ECheckIssueUseCaseTest {
         Libralink.Envelope signedEnvelope = SignatureHelper.sign(unsignedEnvelope, PAYER_CRED, Libralink.SignatureReason.CONFIRM);
 
         assertNotNull(signedEnvelope.getSig());
-        assertEquals("0x67de64f6a061a27390fa84d6ea17c018f3846d9fb5189cea2ef7115205dc1f9b07bbf6c4ace932747b19f35c53ef0aefca7207a3671769d3fa90eed43359d0521b", signedEnvelope.getSig());
+        assertEquals("0x7fd72713780c2dcc7bd641a197f73ce793f83e7f7eaaa9165e42e2ae64d977d9277c2a75a436d9d26aedda44cc7a274d23ba8e27ce0efc1909e03564a03fecf41c", signedEnvelope.getSig());
     }
 
     public Libralink.Envelope createECheckEnvelope(String payer, String payerProcessor, String payee, String payeeProcessor, BigDecimal amount) throws BuilderException {

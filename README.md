@@ -23,6 +23,6 @@ git submodule update --remote --merge
 <dependency>
   <groupId>io.libralink.client</groupId>
   <artifactId>libralink-client-web3j</artifactId>
-  <version>1.8.0</version>
+  <version>1.8.1</version>
 </dependency>  
 ```

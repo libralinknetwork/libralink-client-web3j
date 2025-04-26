@@ -119,6 +119,6 @@ public class ToJsonSignatureTest {
         Libralink.Envelope processorConfirmEnvelopeSigned = SignatureHelper.sign(processorConfirmEnvelope, PROCESSOR_CRED, Libralink.SignatureReason.CONFIRM);
         System.out.println(JsonUtils.toJson(processorConfirmEnvelopeSigned));
 
-        assertEquals("0xfdf36f8159ed00361deb498a55147aa5f04c7d8f7a9c1c7c636cf494b75c7b43797528f3b93e4fc3ffa81455d9a696747c73dcfca0ff2b9e7cdc75449e0811ad1c", processorConfirmEnvelopeSigned.getSig());
+        assertEquals("0x691f641a64be9ba886749bd0204d61f5155192c8c7300df1e04cf600d93d6e863dc354da461ff05a5fce8bf2edd17d2a0c4b470e1c8c8b938ccb2621919f11561b", processorConfirmEnvelopeSigned.getSig());
     }
 }
