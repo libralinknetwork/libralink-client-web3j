@@ -28,7 +28,7 @@ public class ProtobufTest {
 
         Libralink.DeviceSharePayerDetails sharePayerDetails = DeviceSharePayerDetailsBuilder.newBuilder()
                 .addFrom(PAYER_CRED.getAddress())
-                .addProcessors(List.of(PROCESSOR_CRED.getAddress()))
+                .addFromProc(PROCESSOR_CRED.getAddress())
                 .addChallenge("")
                 .build();
 

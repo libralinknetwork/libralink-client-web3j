@@ -3,13 +3,11 @@ package io.libralink.client.payment.proto.builder.device;
 import io.libralink.client.payment.proto.Libralink;
 import io.libralink.client.payment.proto.builder.exception.BuilderException;
 
-import java.util.List;
-
 public final class DeviceSharePayerDetailsBuilder {
 
     private String challenge;
     private String from;
-    private List<String> processors;
+    private String fromProc;
 
     private DeviceSharePayerDetailsBuilder() {}
 
@@ -22,8 +20,8 @@ public final class DeviceSharePayerDetailsBuilder {
         return this;
     }
 
-    public DeviceSharePayerDetailsBuilder addProcessors(List<String> processors) {
-        this.processors = processors;
+    public DeviceSharePayerDetailsBuilder addFromProc(String fromProc) {
+        this.fromProc = fromProc;
         return this;
     }
 
@@ -34,16 +32,13 @@ public final class DeviceSharePayerDetailsBuilder {
 
     public Libralink.DeviceSharePayerDetails build() throws BuilderException {
 
-        if (from == null || processors == null || processors.isEmpty()) {
+        if (from == null || fromProc == null) {
             throw new BuilderException();
         }
 
         Libralink.DeviceSharePayerDetails.Builder builder = Libralink.DeviceSharePayerDetails.newBuilder()
-            .setFrom(from);
-
-        for (int i=0; i< processors.size(); i++) {
-            builder.addProcessors(processors.get(i));
-        }
+            .setFrom(from)
+            .setFromProc(fromProc);
 
         if (challenge != null) {
             builder.setChallenge(challenge);
