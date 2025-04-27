@@ -21,6 +21,7 @@ public final class EnvelopeContentBuilder {
     private Libralink.Envelope entityEnvelope;
     private Libralink.PaymentRequest entityPaymentRequest;
     private Libralink.ErrorResponse entityErrorResponse;
+    private Libralink.DeviceSharePayerDetails entityDeviceSharePayerDetails;
 
     private String address;
     private String pubKey;
@@ -46,6 +47,7 @@ public final class EnvelopeContentBuilder {
         this.entityEnvelope = ENVELOPE.equals(content.getEntityCase()) ? content.getEnvelope(): null;
         this.entityPaymentRequest = PAYMENTREQUEST.equals(content.getEntityCase()) ? content.getPaymentRequest(): null;
         this.entityErrorResponse = ERRORRESPONSE.equals(content.getEntityCase()) ? content.getErrorResponse(): null;
+        this.entityDeviceSharePayerDetails = DEVICESHAREPAYERDETAILS.equals(content.getEntityCase()) ? content.getDeviceSharePayerDetails(): null;
 
         this.address = content.getAddress();
         this.pubKey = content.getPubKey();
@@ -63,6 +65,11 @@ public final class EnvelopeContentBuilder {
 
     public EnvelopeContentBuilder addErrorResponse(Libralink.ErrorResponse entityErrorResponse) {
         this.entityErrorResponse = entityErrorResponse;
+        return this;
+    }
+
+    public EnvelopeContentBuilder addDeviceSharePayerDetails(Libralink.DeviceSharePayerDetails entityDeviceSharePayerDetails) {
+        this.entityDeviceSharePayerDetails = entityDeviceSharePayerDetails;
         return this;
     }
 
@@ -157,7 +164,7 @@ public final class EnvelopeContentBuilder {
             && entityGetProcessorsResponse == null && entityDepositRequest == null && entityDepositResponse == null
             && entityGetBalanceRequest == null && entityGetBalanceResponse == null && entityECheck == null
             && entitySurchargeRequest == null && entityProcessingFee == null && entityEnvelope == null
-            && entityPaymentRequest == null && entityErrorResponse == null) {
+            && entityPaymentRequest == null && entityErrorResponse == null && entityDeviceSharePayerDetails == null) {
 
             throw new BuilderException();
         }
@@ -182,6 +189,7 @@ public final class EnvelopeContentBuilder {
         if (entityEnvelope != null) builder.setEnvelope(entityEnvelope);
         if (entityPaymentRequest != null) builder.setPaymentRequest(entityPaymentRequest);
         if (entityErrorResponse != null) builder.setErrorResponse(entityErrorResponse);
+        if (entityDeviceSharePayerDetails != null) builder.setDeviceSharePayerDetails(entityDeviceSharePayerDetails);
 
         if (address != null) builder.setAddress(address);
         if (algorithm != null) builder.setAlgorithm(algorithm);
