@@ -15,9 +15,9 @@ public class SimpleStringSigningTest {
     @Test
     public void test_simple_signing() throws Exception {
 
-        String input = "Simple string";
+        String input = "Hello";
         String signature = EncryptionUtils.sign(input.getBytes(), PAYER_CRED);
 
-        assertEquals("0x2d29c1905e79a374b5d24cb9f662226da86a72941ea2ce6e14649b8d50d144bd22b05c14e8670d5ef49cc1b88dbf3a6fbcc1886c9a9923c06105c4f6ee48f2351c", signature);
+        assertEquals("0x9c608fcebdea143b83faa315cd4ca4da0e9884076912b31905de32b638f12b0a5e65c06d314cb4250eaf0b3630a26a39bdbcad09a9830db3da8c70b7af48f4031c", signature);
     }
 }
